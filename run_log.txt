@@ -1,0 +1,243 @@
+Run Time: 10/30/2021 16:3612
+good 6 faulty 2
+Byzantine replicas [6 2]
+Transaction 0 ['Ana', 'Elisa', 400]
+PRIMARY ELECTION
+Primary selected 0
+replica inform done
+
+PRE-PREPARE PHASE
+Main Replica_1 pre-prepare phase done
+Main Replica_2 pre-prepare phase done
+Main Replica_3 pre-prepare phase done
+Main Replica_4 pre-prepare phase done
+Main Replica_5 pre-prepare phase done
+Main Replica_6 pre-prepare phase done
+Main Replica_0 pre-prepare phase done
+Main Replica_7 pre-prepare phase done
+
+PREPARE PHASE
+Main Replica_0 prepare phase done
+Main Replica_2 prepare phase done
+Main Replica_6 prepare phase done
+Main Replica_4 prepare phase done
+Main Replica_3 prepare phase done
+Main Replica_1 prepare phase done
+Main Replica_5 prepare phase done
+Main Replica_7 prepare phase done
+
+COMMIT PHASE
+Main Replica_2 commit phase done
+Main Replica_1 commit phase done
+Main Replica_4 commit phase done
+Main Replica_3 commit phase done
+Main Replica_7 commit phase done
+Main Replica_5 commit phase done
+Main Replica_0 commit phase done
+Main Replica_6 commit phase done
+
+INFORM CLIENT
+Main move to the next transaction
+
+
+
+Transaction 1 ['Bo', 'Elisa', 100]
+PRIMARY ELECTION
+Primary selected 1
+replica inform done
+
+PRE-PREPARE PHASE
+Main Replica_0 pre-prepare phase done
+Main Replica_2 pre-prepare phase done
+Main Replica_4 pre-prepare phase done
+Main Replica_3 pre-prepare phase done
+Main Replica_1 pre-prepare phase done
+Main Replica_6 pre-prepare phase done
+Main Replica_7 pre-prepare phase done
+Main Replica_5 pre-prepare phase done
+
+PREPARE PHASE
+Main Replica_0 prepare phase done
+Main Replica_1 prepare phase done
+Main Replica_4 prepare phase done
+Main Replica_2 prepare phase done
+Main Replica_7 prepare phase done
+Main Replica_3 prepare phase done
+Main Replica_6 prepare phase done
+Main Replica_5 prepare phase done
+
+COMMIT PHASE
+Main Replica_2 commit phase done
+Main Replica_6 commit phase done
+Main Replica_3 commit phase done
+Main Replica_4 commit phase done
+Main Replica_7 commit phase done
+Main Replica_5 commit phase done
+Main Replica_0 commit phase done
+Main Replica_1 commit phase done
+
+INFORM CLIENT
+Main move to the next transaction
+
+
+
+Transaction 2 ['Elisa', 'Ana', 20]
+PRIMARY ELECTION
+Primary selected 2
+replica inform done
+
+PRE-PREPARE PHASE
+Main Replica_0 pre-prepare phase done
+Main Replica_1 pre-prepare phase done
+Main Replica_3 pre-prepare phase done
+Main Replica_4 pre-prepare phase done
+Main Replica_5 pre-prepare phase done
+Main Replica_6 pre-prepare phase done
+Main Replica_2 pre-prepare phase done
+Main Replica_7 pre-prepare phase done
+
+PREPARE PHASE
+Main Replica_0 prepare phase done
+Main Replica_6 prepare phase done
+Main Replica_3 prepare phase done
+Main Replica_1 prepare phase done
+Main Replica_5 prepare phase done
+Main Replica_2 prepare phase done
+Main Replica_4 prepare phase done
+Main Replica_7 prepare phase done
+
+COMMIT PHASE
+Main Replica_2 commit phase done
+Main Replica_3 commit phase done
+Main Replica_6 commit phase done
+Main Replica_5 commit phase done
+Main Replica_4 commit phase done
+Main Replica_1 commit phase done
+Main Replica_7 commit phase done
+Main Replica_0 commit phase done
+
+INFORM CLIENT
+Main move to the next transaction
+
+
+
+Transaction 3 ['Bo', 'Ana', 2]
+PRIMARY ELECTION
+Primary selected 3
+replica inform done
+
+PRE-PREPARE PHASE
+Main Replica_0 pre-prepare phase done
+Main Replica_1 pre-prepare phase done
+Main Replica_4 pre-prepare phase done
+Main Replica_3 pre-prepare phase done
+Main Replica_7 pre-prepare phase done
+Main Replica_5 pre-prepare phase done
+Main Replica_6 pre-prepare phase done
+Main Replica_2 pre-prepare phase done
+
+PREPARE PHASE
+Main Replica_0 prepare phase done
+Main Replica_3 prepare phase done
+Main Replica_1 prepare phase done
+Main Replica_5 prepare phase done
+Main Replica_4 prepare phase done
+Main Replica_2 prepare phase done
+Main Replica_6 prepare phase done
+Main Replica_7 prepare phase done
+
+COMMIT PHASE
+Main Replica_0 commit phase done
+Main Replica_5 commit phase done
+Main Replica_2 commit phase done
+Main Replica_4 commit phase done
+Main Replica_3 commit phase done
+Main Replica_7 commit phase done
+Main Replica_1 commit phase done
+Main Replica_6 commit phase done
+
+INFORM CLIENT
+Main move to the next transaction
+
+
+
+Transaction 4 ['Ana', 'Bo', 100]
+PRIMARY ELECTION
+Primary selected 4
+replica inform done
+
+PRE-PREPARE PHASE
+Main Replica_1 pre-prepare phase done
+Main Replica_0 pre-prepare phase done
+Main Replica_3 pre-prepare phase done
+Main Replica_4 pre-prepare phase done
+Main Replica_5 pre-prepare phase done
+Main Replica_6 pre-prepare phase done
+Main Replica_2 pre-prepare phase done
+Main Replica_7 pre-prepare phase done
+
+PREPARE PHASE
+Main Replica_2 prepare phase done
+Main Replica_6 prepare phase done
+Main Replica_1 prepare phase done
+Main Replica_4 prepare phase done
+Main Replica_3 prepare phase done
+Main Replica_7 prepare phase done
+Main Replica_5 prepare phase done
+Main Replica_0 prepare phase done
+
+COMMIT PHASE
+Main Replica_2 commit phase done
+Main Replica_6 commit phase done
+Main Replica_4 commit phase done
+Main Replica_5 commit phase done
+Main Replica_0 commit phase done
+Main Replica_1 commit phase done
+Main Replica_7 commit phase done
+Main Replica_3 commit phase done
+
+INFORM CLIENT
+Main move to the next transaction
+
+
+
+Transaction 5 ['Elisa', 'Ana', 1]
+PRIMARY ELECTION
+Primary selected 5
+replica inform done
+
+PRE-PREPARE PHASE
+Main Replica_2 pre-prepare phase done
+Main Replica_1 pre-prepare phase done
+Main Replica_0 pre-prepare phase done
+Main Replica_3 pre-prepare phase done
+Main Replica_4 pre-prepare phase done
+Main Replica_7 pre-prepare phase done
+Main Replica_5 pre-prepare phase done
+Main Replica_6 pre-prepare phase done
+
+PREPARE PHASE
+Main Replica_0 prepare phase done
+Main Replica_6 prepare phase done
+Main Replica_1 prepare phase done
+Main Replica_7 prepare phase done
+Main Replica_2 prepare phase done
+Main Replica_4 prepare phase done
+Main Replica_5 prepare phase done
+Main Replica_3 prepare phase done
+
+COMMIT PHASE
+Main Replica_2 commit phase done
+Main Replica_1 commit phase done
+Main Replica_5 commit phase done
+Main Replica_6 commit phase done
+Main Replica_4 commit phase done
+Main Replica_0 commit phase done
+Main Replica_7 commit phase done
+Main Replica_3 commit phase done
+
+INFORM CLIENT
+Main move to the next transaction
+
+
+

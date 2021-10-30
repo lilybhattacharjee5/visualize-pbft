@@ -1,16 +1,21 @@
 import multiprocessing as mp
 import time
+import numpy as np
+
+np.random.seed(0)
 
 def clear(q):
+    print('Clearing')
     try:
         while True:
-            q.get_nowait()
+            print('Removing', q.get_nowait())
     except:
         pass
 
 def clear_all_queues(q_list):
     for q in q_list:
-        clear(q)
+        for a in q:
+            clear(a)
 
 # initialize mock db
 bank = {
@@ -22,21 +27,30 @@ bank = {
 # simulator inputs
 num_replicas = 5
 num_byzantine = 1
-# transactions = [
-#     ["Ana", "Elisa", 400],
-#     ["Bo", "Elisa", 100],
-#     ["Elisa", "Ana", 20],
-#     ["Bo", "Ana", 2],
-#     ["Ana", "Bo", 100],
-#     ["Elisa", "Ana", 1]
-# ]
-transactions = [["Ana", "Elisa", 400] for i in range(1000)]
+
+f = (num_replicas - 1) // 3
+g = num_replicas - f
+
+transactions = [
+    ["Ana", "Elisa", 400],
+    ["Bo", "Elisa", 100],
+    ["Elisa", "Ana", 20],
+    # ["Bo", "Ana", 2],
+    # ["Ana", "Bo", 100],
+    # ["Elisa", "Ana", 1]
+]
+# transactions = [["Ana", "Elisa", 400] for i in range(1000)]
+
+# select the random byzantine replicas
+byz_idxes = np.random.choice(np.arange(0, num_replicas), num_byzantine, replace = False)
+print("Byzantine replicas", byz_idxes)
 
 # calculations based on inputs
 num_transactions = len(transactions)
 
 client_name = "Client"
 replica_names = ["Replica_{}".format(r) for r in range(num_replicas)]
+byz_replica_names = ["Replica_{}".format(r) for r in byz_idxes]
 
 def generate_transaction_msg():
     pass
@@ -50,6 +64,80 @@ def generate_prepare_msg():
 def generate_inform_msg():
     pass 
 
+## CLIENT FUNCTIONS
+def send_transaction(queues, primary_name, curr_transaction):
+    for q_name, q in queues.items():
+        if q_name != client_name:
+            if q_name == primary_name:
+                q["to_machine"].put((curr_transaction, primary_name))
+            else:
+                q["to_machine"].put((None, primary_name))
+
+def replica_ack_primary(to_client):
+    for i in range(num_replicas):
+        to_client["to_machine"].get()
+    m_queue.put("replica inform done")
+    to_client["from_main"].get()
+
+def recv_inform(to_client):
+    for i in range(num_replicas):
+        print("client received", to_client["to_machine"].get())
+    print("client has received inform message!")
+
+## PRIMARY FUNCTIONS
+def send_preprepare(to_curr_replica, queues, client_name, r_name, m_queue):
+    for q_name, q in queues.items():
+        if q_name != client_name and q_name != r_name:
+            q["to_machine"].put("pre-prepare message")
+    print("primary has sent the pre-prepare messages")
+    m_queue.put(r_name + " pre-prepare phase done")
+    print(to_curr_replica["from_main"].get())
+
+## REPLICA FUNCTIONS
+def recv_preprepare(to_curr_replica, r_name, m_queue):
+    print(r_name, to_curr_replica["to_machine"].get())
+    print(r_name, "pre-prepare message received!")
+    m_queue.put(r_name + " pre-prepare phase done")
+    print(to_curr_replica["from_main"].get())
+
+def prepare(to_curr_replica, queues, client_name, r_name, m_queue, byz_status):
+    # all replicas broadcast prepare message to all other replicas
+    # if not byz_status:
+    for q_name, q in queues.items():
+        if q_name != client_name and q_name != r_name:
+            q["to_machine"].put("prepare message")
+    print("{} has sent prepare messages".format(r_name))
+
+    # wait to receive prepare messages from at least g other replicas
+    for i in range(num_replicas - 1):
+        print(r_name, to_curr_replica["to_machine"].get())
+    print(r_name, "prepare messages received!")
+
+    m_queue.put(r_name + " prepare phase done")
+    print(to_curr_replica["from_main"].get())
+
+def commit(to_curr_replica, queues, client_name, r_name, m_queue, byz_status):
+    # all replicas broadcast commit message to all other replicas
+    # if not byz_status:
+    for q_name, q in queues.items():
+        if q_name != client_name and q_name != r_name:
+            q["to_machine"].put("commit message")
+    print("{} has sent commit messages".format(r_name))
+
+    # wait to receive commit messages from at least g other replicas
+    for i in range(num_replicas - 1):
+        to_curr_replica["to_machine"].get()
+    print(r_name, "commit messages received!")
+
+    m_queue.put(r_name + " commit phase done")
+    print(to_curr_replica["from_main"].get())
+
+def send_inform(to_client, r_name, byz_status):
+    # if not byz_status:
+    to_client.put("inform message")
+    print("{} has sent inform message to client".format(r_name))
+
+## MULTIPROCESSING
 def client_proc(transactions, queues, t_queue):
     to_client = queues[client_name]
 
@@ -59,34 +147,25 @@ def client_proc(transactions, queues, t_queue):
         p_index, primary_name, curr_transaction = t_queue.get()
 
         # client sends transaction to the primary of the current view
-        for q_name, q in queues.items():
-            if q_name == primary_name:
-                q.put((curr_transaction, primary_name))
-            else:
-                q.put((None, primary_name))
+        send_transaction(queues, primary_name, curr_transaction)
 
-        # wait for all replicas to acknowledge that primary has been informed
-        for i in range(num_replicas):
-            to_client.get()
-        m_queue.put("replica inform done")
-        to_client.get()
+        # wait for all primaries to acknowledge that primary has been informed
+        replica_ack_primary(to_client)
 
-        # client receives all inform messages
-        for i in range(num_replicas):
-            to_client.get()
-
-        print("client has received inform message!")
+        # client receives f + 1 identical inform messages
+        recv_inform(to_client)
         
         m_queue.put("move to the next transaction")
 
-def replica_proc(r_name, queues):
-    to_client = queues[client_name]
+def replica_proc(r_name, queues, byz_status):
+    to_client = queues[client_name]["to_machine"]
     to_curr_replica = queues[r_name]
     
     status = True
     while status:
         primary_status = False
-        transaction, primary_name = to_curr_replica.get()
+        transaction, primary_name  = to_curr_replica["to_machine"].get()
+        print(transaction, primary_name)
         if transaction:
             primary_status = True   
         else:
@@ -97,66 +176,37 @@ def replica_proc(r_name, queues):
 
         # send signal to client that primary has been informed
         to_client.put(primary_status)
-        print(to_curr_replica.get())
+        print(to_curr_replica["from_main"].get())
 
         if primary_status:
             # primary broadcasts pre-prepare message to all other replicas
-            for q_name, q in queues.items():
-                if q_name != client_name and q_name != r_name:
-                    q.put("pre-prepare message")
-            print("primary has sent the pre-prepare messages")
+            send_preprepare(to_curr_replica, queues, client_name, r_name, m_queue)
         else:
             # replicas receive pre-prepare message
-            print(r_name, to_curr_replica.get())
-            print(r_name, "pre-prepare message received!")
+            recv_preprepare(to_curr_replica, r_name, m_queue)
 
-        m_queue.put(r_name + " pre-prepare phase done")
-        print(to_curr_replica.get())
+        prepare(to_curr_replica, queues, client_name, r_name, m_queue, byz_status) # prepare phase
 
-        # all replicas broadcast prepare message to all other replicas
-        for q_name, q in queues.items():
-            if q_name != client_name and q_name != r_name:
-                q.put("prepare message")
-        print("{} has sent prepare messages".format(r_name))
+        commit(to_curr_replica, queues, client_name, r_name, m_queue, byz_status) # commit phase
 
-        # wait to receive prepare messages from all other replicas
-        for i in range(num_replicas - 1):
-            print(r_name, to_curr_replica.get())
-        print(r_name, "prepare messages received!")
-
-        m_queue.put(r_name + " prepare phase done")
-        print(to_curr_replica.get())
-
-        # all replicas broadcast commit message to all other replicas
-        for q_name, q in queues.items():
-            if q_name != client_name and q_name != r_name:
-                q.put("commit message")
-        print("{} has sent commit messages".format(r_name))
-
-        # wait to receive commit messages from all other replicas
-        for i in range(num_replicas - 1):
-            to_curr_replica.get()
-        print(r_name, "commit messages received!")
-
-        m_queue.put(r_name + " commit phase done")
-        print(to_curr_replica.get())
-
-        # all replicas send an inform message to the client
-        to_client.put("inform message")
-        print("{} has sent inform message to client".format(r_name))
+        send_inform(to_client, r_name, byz_status) # all replicas send an inform message to the client  
 
 all_machine_names = [client_name] + replica_names
 machine_queues = {}
 for a in range(len(all_machine_names)):
     a_machine_name = all_machine_names[a]
     curr_queue_to_a = mp.Queue()
-    machine_queues[a_machine_name] = curr_queue_to_a
+    curr_queue_to_a_from_main = mp.Queue()
+    machine_queues[a_machine_name] = {
+        "to_machine": curr_queue_to_a,
+        "from_main": curr_queue_to_a_from_main
+    }
 
 # spawn client and replica processes
 t_queue = mp.Queue()
 m_queue = mp.Queue()
 client = mp.Process(name = client_name, target = client_proc, args = (transactions, machine_queues, t_queue, ))
-replicas = [mp.Process(name = r_name, target = replica_proc, args = (r_name, machine_queues, )) for r_name in replica_names]
+replicas = [mp.Process(name = r_name, target = replica_proc, args = (r_name, machine_queues, r_name in byz_replica_names, )) for r_name in replica_names]
 
 client.start()
 for r in replicas:
@@ -168,6 +218,8 @@ for t in range(len(transactions)):
     curr_transaction = transactions[t]
 
     print("Transaction {}".format(t), transactions[t])
+
+    print("PRIMARY ELECTION")
         
     # elect primary
     p_index = curr_view % num_replicas
@@ -181,49 +233,69 @@ for t in range(len(transactions)):
     print(m_queue.get())
 
     clear_all_queues(machine_queues.values())
+    clear(m_queue)
+
+    print()
+
+    print("PRE-PREPARE PHASE")
     
     for q_name, q in machine_queues.items():
-        q.put("start pre-prepare phase")
+        q["from_main"].put("start pre-prepare phase")
 
     # pre-prepare phase done
     for i in range(num_replicas):
-        print(m_queue.get())
+        print('Main', m_queue.get())
 
     clear_all_queues(machine_queues.values())
+    clear(m_queue)
+
+    print()
+
+    print("PREPARE PHASE")
     
     for q_name, q in machine_queues.items():
         if q_name != client_name:
-            q.put("start prepare phase")
+            q["from_main"].put("start prepare phase")
 
     # prepare phase done
     for i in range(num_replicas):
-        print(m_queue.get())
+        print('Main', m_queue.get())
 
     clear_all_queues(machine_queues.values())
+    clear(m_queue)
+
+    print()
+
+    print("COMMIT PHASE")
     
     for q_name, q in machine_queues.items():
         if q_name != client_name:
-            q.put("start commit phase")
+            q["from_main"].put("start commit phase")
 
     # commit phase done
     for i in range(num_replicas):
-        print(m_queue.get())
+        print('Main', m_queue.get())
 
     clear_all_queues(machine_queues.values())
+    clear(m_queue)
+
+    print()
+
+    print("INFORM CLIENT")
     
     for q_name, q in machine_queues.items():
         if q_name != client_name:
-            q.put("send inform messages")
+            q["from_main"].put("send inform messages")
 
     # inform client done: client sends a message to move to the next transaction
-    print(m_queue.get())
+    print('Main', m_queue.get())
 
     clear_all_queues(machine_queues.values())
     clear(m_queue)
     clear(t_queue)
 
     curr_view += 1
-    print()
+    print("\n\n")
     
     # time.sleep(5) # artificial latency to view text output between transactions
 

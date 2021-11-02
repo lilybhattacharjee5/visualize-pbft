@@ -4,6 +4,16 @@ import numpy as np
 from datetime import datetime, date
 import sys
 
+# Possible Byzantine behavior to support
+# - insert forged client transactions into the system
+# - prevent replication of client transactions from some or all clients
+# - send invalid results to client
+# - interfere with correct working of distributed system e.g. convince replicas other good replicas are malicious
+# - disrupting consensus protocol
+
+# Currently supported
+# - Byzantine replica(s) that do not respond to other replicas / client
+
 # sys.stdout = open('run_log.txt', 'w')
 
 print("Run Time:", date.today().strftime("%m/%d/%Y"), datetime.now().strftime("%H:%M%S"))
@@ -34,7 +44,7 @@ num_replicas = 8
 num_byzantine = 2
 
 f = (num_replicas - 1) // 3
-g = num_replicas - f
+g = num_replicas - f - 1 # for primary
 
 print("good", g, "faulty", f)
 
@@ -59,50 +69,58 @@ client_name = "Client"
 replica_names = ["Replica_{}".format(r) for r in range(num_replicas)]
 byz_replica_names = ["Replica_{}".format(r) for r in byz_idxes]
 
-def generate_transaction_msg(sender, recipient, data):
+def generate_transaction_msg(sender, recipient, curr_transaction, curr_view, p):
     return {
         "Type": "Transaction",
         "Sender": sender,
         "Recipient": recipient,
-        "Data": data,
+        "Transaction": curr_transaction,
+        "View": curr_view,
+        "Num_transaction": p,
     }
 
-def generate_preprepare_msg(sender, recipient):
+def generate_preprepare_msg(sender, recipient, curr_transaction, curr_view, p):
     return {
         "Type": "Pre-prepare",
         "Sender": sender,
         "Recipient": recipient,
-        # "View": view,
-        # "Num_transaction": p,
+        "Transaction": curr_transaction,
+        "View": curr_view,
+        "Num_transaction": p,
     }
 
-def generate_prepare_msg(sender, recipient):
+def generate_prepare_msg(sender, recipient, m):
     return {
         "Type": "Prepare",
         "Sender": sender,
         "Recipient": recipient,
+        "Message": m,
     }
 
-def generate_commit_msg(sender, recipient):
+def generate_commit_msg(sender, recipient, m):
     return {
         "Type": "Commit",
         "Sender": sender,
         "Recipient": recipient,
+        "Message": m,
     }
 
-def generate_inform_msg(sender, recipient):
+def generate_inform_msg(sender, recipient, curr_transaction, p, r):
     return {
         "Type": "Inform",
         "Sender": sender,
         "Recipient": recipient,
+        "Transaction": curr_transaction,
+        "Num_transaction": p,
+        "Result": r,
     }
 
 ## CLIENT FUNCTIONS
-def send_transaction(queues, primary_name, curr_transaction):
+def send_transaction(queues, primary_name, curr_transaction, curr_view, p):
     for q_name, q in queues.items():
         if q_name != client_name:
             if q_name == primary_name:
-                q["to_machine"].put((generate_transaction_msg(client_name, primary_name, curr_transaction), primary_name))
+                q["to_machine"].put((generate_transaction_msg(client_name, primary_name, curr_transaction, curr_view, p), primary_name))
             else:
                 q["to_machine"].put((None, primary_name))
 
@@ -113,23 +131,36 @@ def replica_ack_primary(to_client):
     to_client["from_main"].get()
 
 def recv_inform(to_client):
-    for i in range(f + 1):
+    # gather inform messages from f + 1 distinct senders
+    sender_count = 0
+    senders = {}
+    while sender_count < f + 1:
         received = False
         while not received:
             queue_elem = to_client["to_machine"].get()
             if len(queue_elem) == 1 and type(queue_elem[0]) == dict and queue_elem[0]["Type"] == "Inform":
                 received = True 
+                curr_sender = queue_elem[0]["Sender"]
+                if curr_sender not in senders:
+                    sender_count += 1
+                    senders[curr_sender] = True
         print("client received", queue_elem)
-    print("client has received inform message!")
+    print("client has received inform messages!")
 
 ## PRIMARY FUNCTIONS
-def send_preprepare(to_curr_replica, queues, client_name, r_name, m_queue):
+def send_preprepare(to_curr_replica, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p):
     for q_name, q in queues.items():
         if q_name != client_name and q_name != r_name:
-            q["to_machine"].put([generate_preprepare_msg(r_name, q_name)])
+            q["to_machine"].put([generate_preprepare_msg(r_name, q_name, curr_transaction, curr_view, p)])
     print("primary has sent the pre-prepare messages")
     m_queue.put(r_name + " pre-prepare phase done")
     print(to_curr_replica["from_main"].get())
+    m = {
+        "Transaction": curr_transaction,
+        "View": curr_view,
+        "Num_transaction": p,
+    }
+    return m
 
 ## REPLICA FUNCTIONS
 def recv_preprepare(to_curr_replica, r_name, m_queue):
@@ -144,21 +175,36 @@ def recv_preprepare(to_curr_replica, r_name, m_queue):
     m_queue.put(r_name + " pre-prepare phase done")
     print(to_curr_replica["from_main"].get())
 
-def prepare(to_curr_replica, queues, client_name, r_name, m_queue, byz_status):
+    preprepare_received = queue_elem[0]
+    m = {
+        "Transaction": preprepare_received["Transaction"],
+        "View": preprepare_received["View"],
+        "Num_transaction": preprepare_received["Num_transaction"],
+    }
+    return m
+
+def prepare(to_curr_replica, queues, client_name, r_name, m_queue, byz_status, m):
     # all replicas broadcast prepare message to all other replicas
     if not byz_status:
         for q_name, q in queues.items():
             if q_name != client_name and q_name != r_name:
-                q["to_machine"].put([generate_prepare_msg(r_name, q_name)])
+                q["to_machine"].put([generate_prepare_msg(r_name, q_name, m)])
         print("{} has sent prepare messages".format(r_name))
 
-    # wait to receive prepare messages from at least g other replicas
-    for i in range(g - 1):
+    # wait to receive prepare messages from at least g other distinct replicas
+    sender_count = 0
+    senders = {}
+    while sender_count < g:
         received = False
         while not received:
             queue_elem = to_curr_replica["to_machine"].get()
             if len(queue_elem) == 1 and queue_elem[0]["Type"] == "Prepare":
                 received = True 
+
+            curr_sender = queue_elem[0]["Sender"]
+            if curr_sender not in senders:
+                sender_count += 1
+                senders[curr_sender] = True
 
         print(r_name, queue_elem)
 
@@ -168,21 +214,29 @@ def prepare(to_curr_replica, queues, client_name, r_name, m_queue, byz_status):
     m_queue.put(r_name + " prepare phase done")
     print(to_curr_replica["from_main"].get())
 
-def commit(to_curr_replica, queues, client_name, r_name, m_queue, byz_status):
+def commit(to_curr_replica, queues, client_name, r_name, m_queue, byz_status, m):
     # all replicas broadcast commit message to all other replicas
     if not byz_status:
         for q_name, q in queues.items():
             if q_name != client_name and q_name != r_name:
-                q["to_machine"].put([generate_commit_msg(r_name, q_name)])
+                q["to_machine"].put([generate_commit_msg(r_name, q_name, m)])
         print("{} has sent commit messages".format(r_name))
 
-    # wait to receive commit messages from at least g other replicas
-    for i in range(g - 1):
+    # wait to receive commit messages from at least g other distinct replicas
+    sender_count = 0
+    senders = {}
+    while sender_count < g:
         received = False
         while not received:
             queue_elem = to_curr_replica["to_machine"].get()
             if len(queue_elem) == 1 and queue_elem[0]["Type"] == "Commit":
                 received = True 
+
+            curr_sender = queue_elem[0]["Sender"]
+            if curr_sender not in senders:
+                sender_count += 1
+                senders[curr_sender] = True 
+
         print(r_name, queue_elem)
 
     if not byz_status:
@@ -191,9 +245,9 @@ def commit(to_curr_replica, queues, client_name, r_name, m_queue, byz_status):
     m_queue.put(r_name + " commit phase done")
     print(to_curr_replica["from_main"].get())
 
-def send_inform(to_client, r_name, byz_status):
+def send_inform(to_client, r_name, byz_status, curr_transaction, p, r):
     if not byz_status:
-        to_client.put([generate_inform_msg(r_name, client_name)])
+        to_client.put([generate_inform_msg(r_name, client_name, curr_transaction, p, r)])
         print("{} has sent inform message to client".format(r_name))
 
 ## MULTIPROCESSING
@@ -203,10 +257,10 @@ def client_proc(transactions, queues, t_queue):
     status = True
     while status:
         # get p_index from t_queue
-        p_index, primary_name, curr_transaction = t_queue.get()
+        p_index, primary_name, curr_transaction, curr_view, p = t_queue.get()
 
         # client sends transaction to the primary of the current view
-        send_transaction(queues, primary_name, curr_transaction)
+        send_transaction(queues, primary_name, curr_transaction, curr_view, p)
 
         # wait for all primaries to acknowledge that primary has been informed
         replica_ack_primary(to_client)
@@ -234,7 +288,8 @@ def replica_proc(r_name, queues, byz_status):
 
         print(transaction, primary_name)
         if transaction:
-            primary_status = True   
+            primary_status = True
+            curr_transaction, curr_view, p = transaction["Transaction"], transaction["View"], transaction["Num_transaction"]
         else:
             # must be a regular replica
             primary_status = False
@@ -247,16 +302,22 @@ def replica_proc(r_name, queues, byz_status):
 
         if primary_status:
             # primary broadcasts pre-prepare message to all other replicas
-            send_preprepare(to_curr_replica, queues, client_name, r_name, m_queue)
+            m = send_preprepare(to_curr_replica, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p)
         else:
             # replicas receive pre-prepare message
-            recv_preprepare(to_curr_replica, r_name, m_queue)
+            m = recv_preprepare(to_curr_replica, r_name, m_queue)
+            curr_transaction, p = m["Transaction"], m["Num_transaction"]
 
-        prepare(to_curr_replica, queues, client_name, r_name, m_queue, byz_status) # prepare phase
+        prepare(to_curr_replica, queues, client_name, r_name, m_queue, byz_status, m) # prepare phase
 
-        commit(to_curr_replica, queues, client_name, r_name, m_queue, byz_status) # commit phase
+        commit(to_curr_replica, queues, client_name, r_name, m_queue, byz_status, m) # commit phase
 
-        send_inform(to_client, r_name, byz_status) # all replicas send an inform message to the client  
+        # append transaction to replica log
+        # execute transaction
+        # generate optional result of transaction
+        result = None
+
+        send_inform(to_client, r_name, byz_status, curr_transaction, p, result) # all replicas send an inform message to the client  
 
 all_machine_names = [client_name] + replica_names
 machine_queues = {}
@@ -281,6 +342,7 @@ for r in replicas:
 
 # iteratively execute all transactions
 curr_view = 0
+p = 0
 for t in range(len(transactions)):
     curr_transaction = transactions[t]
 
@@ -293,8 +355,8 @@ for t in range(len(transactions)):
     primary_name = replica_names[p_index]
     print("Primary selected", p_index)
 
-    # send p_index to client
-    t_queue.put((p_index, primary_name, curr_transaction))
+    # send primary index, name, current view, and transaction to client
+    t_queue.put((p_index, primary_name, curr_transaction, curr_view, p))
 
     # replica inform done
     print(m_queue.get())
@@ -361,7 +423,7 @@ for t in range(len(transactions)):
     clear(m_queue)
     clear(t_queue)
 
-    curr_view += 1
+    p += 1
     print("\n\n")
     
     # time.sleep(5) # artificial latency to view text output between transactions

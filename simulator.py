@@ -3,6 +3,16 @@ import time
 import numpy as np
 from datetime import datetime, date
 import sys
+import json
+import copy
+
+np.random.seed(0)
+
+class JSONEncoderWithDictProxy(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, mp.managers.DictProxy):
+            return dict(o)
+        return json.JSONEncoder.default(self, o)
 
 # Possible Byzantine behavior to support
 # - insert forged client transactions into the system
@@ -16,12 +26,10 @@ import sys
 
 # sys.stdout = open('run_log.txt', 'w')
 
-visible_log_manager = mp.Manager()
-visible_log = visible_log_manager.list()
+manager = mp.Manager()
+visible_log = manager.list()
 
 print("Run Time:", date.today().strftime("%m/%d/%Y"), datetime.now().strftime("%H:%M%S"))
-
-np.random.seed(0)
 
 def clear(q):
     try:
@@ -71,6 +79,17 @@ num_transactions = len(transactions)
 client_name = "Client"
 replica_names = ["Replica_{}".format(r) for r in range(num_replicas)]
 byz_replica_names = ["Replica_{}".format(r) for r in byz_idxes]
+
+replica_logs = {}
+replica_bank_copies = {}
+for r in replica_names:
+    replica_logs[r] = manager.list()
+    replica_bank_copies[r] = manager.dict()
+    for user, data in bank.items():
+        replica_bank_copies[r][user] = manager.dict()
+        for k, v in data.items():
+            replica_bank_copies[r][user][k] = v
+print(replica_bank_copies["Replica_0"])
 
 def generate_transaction_msg(sender, recipient, curr_transaction, curr_view, p):
     return {
@@ -186,14 +205,15 @@ def recv_preprepare(to_curr_replica, r_name, m_queue):
     }
     return m
 
-def prepare(to_curr_replica, queues, client_name, r_name, m_queue, byz_status, m):
+def send_prepare(queues, client_name, r_name, byz_status, m):
     # all replicas broadcast prepare message to all other replicas
     if not byz_status:
         for q_name, q in queues.items():
             if q_name != client_name and q_name != r_name:
                 q["to_machine"].put([generate_prepare_msg(r_name, q_name, m)])
-        visible_log.append("{} has sent prepare messages".format(r_name))
+        visible_log.append("{} has sent prepare messages".format(r_name)) 
 
+def recv_prepare(to_curr_replica, r_name, m_queue, byz_status):
     # wait to receive prepare messages from at least g other distinct replicas
     sender_count = 0
     senders = {}
@@ -217,14 +237,15 @@ def prepare(to_curr_replica, queues, client_name, r_name, m_queue, byz_status, m
     m_queue.put(r_name + " prepare phase done")
     visible_log.append(to_curr_replica["from_main"].get())
 
-def commit(to_curr_replica, queues, client_name, r_name, m_queue, byz_status, m):
+def send_commit(queues, client_name, r_name, m_queue, byz_status, m):
     # all replicas broadcast commit message to all other replicas
     if not byz_status:
         for q_name, q in queues.items():
             if q_name != client_name and q_name != r_name:
                 q["to_machine"].put([generate_commit_msg(r_name, q_name, m)])
-        visible_log.append("{} has sent commit messages".format(r_name))
+        visible_log.append("{} has sent commit messages".format(r_name)) 
 
+def recv_commit(to_curr_replica, r_name, m_queue, byz_status, m):
     # wait to receive commit messages from at least g other distinct replicas
     sender_count = 0
     senders = {}
@@ -252,6 +273,16 @@ def send_inform(to_client, r_name, byz_status, curr_transaction, p, r):
     if not byz_status:
         to_client.put([generate_inform_msg(r_name, client_name, curr_transaction, p, r)])
         visible_log.append("{} has sent inform message to client".format(r_name))
+
+## TRANSACTION EXECUTION (TEMPORARY)
+def execute_transaction(curr_transaction, r_name):
+    sender, receiver, amt = curr_transaction 
+    # does sender have at least amt to transfer?
+    replica_bank = replica_bank_copies[r_name]
+    if replica_bank[sender]["Balance"] >= amt:
+        replica_bank[sender]["Balance"], replica_bank[receiver]["Balance"] = replica_bank[sender]["Balance"] - amt, replica_bank[receiver]["Balance"] + amt 
+        print("here", sender, receiver, replica_bank)
+    return { sender: replica_bank[sender]["Balance"], receiver: replica_bank[receiver]["Balance"] }
 
 ## MULTIPROCESSING
 def client_proc(transactions, queues, t_queue):
@@ -311,14 +342,21 @@ def replica_proc(r_name, queues, byz_status):
             m = recv_preprepare(to_curr_replica, r_name, m_queue)
             curr_transaction, p = m["Transaction"], m["Num_transaction"]
 
-        prepare(to_curr_replica, queues, client_name, r_name, m_queue, byz_status, m) # prepare phase
+        # prepare phase
+        send_prepare(queues, client_name, r_name, byz_status, m)
 
-        commit(to_curr_replica, queues, client_name, r_name, m_queue, byz_status, m) # commit phase
+        recv_prepare(to_curr_replica, r_name, m_queue, byz_status)
+
+        # commit phase
+        send_commit(queues, client_name, r_name, m_queue, byz_status, m)
+
+        recv_commit(to_curr_replica, r_name, m_queue, byz_status, m)
 
         # append transaction to replica log
-        # execute transaction
-        # generate optional result of transaction
-        result = None
+        replica_logs[r_name].append(curr_transaction)
+
+        # execute transaction, generate optional result
+        result = execute_transaction(curr_transaction, r_name)
 
         send_inform(to_client, r_name, byz_status, curr_transaction, p, result) # all replicas send an inform message to the client  
 
@@ -430,5 +468,18 @@ for r in replicas:
 # print the visible log
 for i in visible_log:
     print(i)
+
+print()
+
+# print the logs of each replica
+for r in replica_names:
+    print(r, "log")
+    for log_entry in replica_logs[r]:
+        print(log_entry)
+    print()
+
+# states of replica banks
+for r_name, bank_copy in replica_bank_copies.items():
+    print(r_name, json.dumps(bank_copy, cls=JSONEncoderWithDictProxy))
 
 # sys.stdout.close()

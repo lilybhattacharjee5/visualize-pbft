@@ -68,6 +68,7 @@ def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, vi
                 visible_log.append("{} {}".format(r_name, queue_elem))
                 visible_log.append("{} {}".format(r_name, "pre-prepare message received!"))
             else:
+                print("other message", queue_elem)
                 counter += 1
         except:
             counter += 1

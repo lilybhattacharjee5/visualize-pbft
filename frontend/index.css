@@ -1,0 +1,18 @@
+#container {
+    margin-left: 5em;
+    margin-right: 5em;
+    margin-top: 2em;
+}
+
+#window {
+    display: flex;
+    height: 30em;
+}
+
+.window-item {
+    flex: 1 1 0px;
+}
+
+.form-item {
+    padding: 0.15em;
+}

@@ -23,8 +23,8 @@ from message_generator import generate_new_view_msg
 # sys.stdout = open('run_log.txt', 'w')
 
 # simulator inputs
-num_replicas = 12
-num_byzantine = 3
+num_replicas = 4
+num_byzantine = 1
 
 np.random.seed(0)
 
@@ -63,16 +63,16 @@ g = num_replicas - f - 1 # for primary
 
 print("good", g, "faulty", f)
 
-transactions = [
-    ["Ana", "Elisa", 400],
-    ["Bo", "Elisa", 100],
-    ["Elisa", "Ana", 20],
-    ["Bo", "Ana", 2],
-    ["Ana", "Bo", 100],
-    ["Elisa", "Ana", 1],
-    ["Elisa", "Ana", 1]
-]
-# transactions = [["Ana", "Elisa", 400] for i in range(1000)]
+# transactions = [
+#     ["Ana", "Elisa", 400],
+#     ["Bo", "Elisa", 100],
+#     ["Elisa", "Ana", 20],
+#     ["Bo", "Ana", 2],
+#     ["Ana", "Bo", 100],
+#     ["Elisa", "Ana", 1],
+#     ["Elisa", "Ana", 1]
+# ]
+transactions = [["Ana", "Elisa", 400] for i in range(20)]
 
 # select the random byzantine replicas
 byz_idxes = np.random.choice(np.arange(0, num_replicas), num_byzantine, replace = False)
@@ -239,14 +239,17 @@ for t in range(len(transactions)):
     while transaction_status:
         visible_log.append("Transaction {} {}".format(t, transactions[t]))
 
-        visible_log.append("PRIMARY ELECTION")
+        # visible_log.append("PRIMARY ELECTION")
+        print("PRIMARY ELECTION")
             
         # elect primary
         p_index = curr_view % num_replicas
         primary_name = replica_names[p_index]
-        visible_log.append("Primary selected {}".format(p_index))
+        # visible_log.append("Primary selected {}".format(p_index))
+        print("Primary selected {}".format(p_index))
 
         # send primary index, name, current view, and transaction to client
+        print("sending", (p_index, primary_name, transactions[t], curr_view, p))
         t_queue.put((p_index, primary_name, transactions[t], curr_view, p))
 
         # replica inform done
@@ -261,6 +264,7 @@ for t in range(len(transactions)):
             q["from_main"].put("start pre-prepare phase")
 
         # pre-prepare phase done
+        print("before client response")
         client_response = m_queue.get()
         print("Client response", client_response)
         if client_response == None:

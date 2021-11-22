@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+    <head>
+        <title>Visualize PBFT</title>
+        <link rel = "stylesheet" type = "text/css" href = "frontend/sb-admin-2.min.css" />
+        <link rel = "stylesheet" type = "text/css" href = "frontend/index.css" />
+    </head>
+    </head>
+    <body>
+        <div id = "container">
+            <h1>Visualize PBFT</h1>
+            <div id = "window">
+                <div id = "visualization" class = "window-item"></div>
+                <div id = "log" class = "window-item"></div>
+            </div>
+            <div id = "options">
+                <div class = "form-item">Number of replicas: <input type = "textbox" /><br /></div>
+                <div class = "form-item">Number of Byzantine replicas: <input type = "textbox" /><br /></div>
+                <div class = "form-item">Number of transactions: <input type = "textbox" /><br /></div>
+                <div class = "form-item">
+                    <label for = "byz-behave">Type of Byzantine behavior:</label>
+                    <select id = "byz-behave" name = "byz-behave">
+                        <option value = "none">None</option>
+                        <option value = "no-response">No response</option>
+                    </select>
+                </div>
+                <div class = "form-item">
+                    <input type = "submit" />
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

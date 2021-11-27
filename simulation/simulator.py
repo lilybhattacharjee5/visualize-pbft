@@ -1,6 +1,7 @@
 import multiprocessing as mp
 import time
 import numpy as np
+import pandas as pd
 from datetime import datetime, date
 import sys
 import json
@@ -36,6 +37,7 @@ class JSONEncoderWithDictProxy(json.JSONEncoder):
 
 manager = mp.Manager()
 visible_log = manager.list()
+frontend_log = manager.list()
 
 print("Run Time:", date.today().strftime("%m/%d/%Y"), datetime.now().strftime("%H:%M%S"))
 
@@ -72,7 +74,7 @@ print("good", g, "faulty", f)
 #     ["Elisa", "Ana", 1],
 #     ["Elisa", "Ana", 1]
 # ]
-transactions = [["Ana", "Elisa", 400] for i in range(20)]
+transactions = [["Ana", "Elisa", 400] for i in range(3)] #20
 
 # select the random byzantine replicas
 byz_idxes = np.random.choice(np.arange(0, num_replicas), num_byzantine, replace = False)
@@ -176,29 +178,31 @@ def replica_proc(r_name, queues, byz_status):
 
         if primary_status:
             # primary broadcasts pre-prepare message to all other replicas
-            m = send_preprepare(to_curr_replica, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, byz_status, visible_log)
+            m = send_preprepare(to_curr_replica, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, byz_status, visible_log, frontend_log)
         else:
             # replicas receive pre-prepare message
-            m = recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log)
+            m = recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log)
             if m == None:
                 print("{} exit prematurely, restart the transaction".format(r_name))
                 continue
             curr_transaction, p = m["Transaction"], m["Num_transaction"]
 
         # prepare phase
-        send_prepare(queues, client_name, r_name, byz_status, m, visible_log)
+        send_prepare(queues, client_name, r_name, byz_status, m, visible_log, frontend_log)
 
         m = recv_prepare(to_curr_replica, r_name, m_queue, byz_status, g, visible_log)
         if m == None:
             print("{} exit prematurely, restart the transaction".format(r_name))
             # induce client to resend transaction
-            to_client.put([generate_new_view_msg(r_name, client_name, curr_view + 1)])
+            new_view_msg = generate_new_view_msg(r_name, client_name, curr_view + 1)
+            frontend_log.append(new_view_msg)
+            to_client.put([new_view_msg])
             continue
 
         # commit phase
-        send_commit(queues, client_name, r_name, m_queue, byz_status, m, visible_log)
+        send_commit(queues, client_name, r_name, m_queue, byz_status, m, visible_log, frontend_log)
 
-        recv_commit(to_curr_replica, r_name, m_queue, byz_status, m, g, visible_log)
+        recv_commit(to_curr_replica, r_name, m_queue, byz_status, m, g, visible_log, frontend_log)
 
         # append transaction to replica log
         replica_logs[r_name].append(curr_transaction)
@@ -207,7 +211,7 @@ def replica_proc(r_name, queues, byz_status):
         print("Executing transaction {} {}".format(curr_transaction, r_name))
         result = execute_transaction(curr_transaction, r_name)
 
-        send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, result, visible_log) # all replicas send an inform message to the client  
+        send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, result, visible_log, frontend_log) # all replicas send an inform message to the client  
 
 all_machine_names = [client_name] + replica_names
 machine_queues = {}
@@ -347,5 +351,28 @@ for r in replicas:
 # states of replica banks
 for r_name, bank_copy in replica_bank_copies.items():
     print(r_name, json.dumps(bank_copy, cls=JSONEncoderWithDictProxy))
+
+frontend_log = list(frontend_log)
+type_data = list(map(lambda x: "" if "Type" not in x else x["Type"], frontend_log))
+sender_data = list(map(lambda x: "" if "Sender" not in x else x["Sender"], frontend_log))
+recipient_data = list(map(lambda x: "" if "Recipient" not in x else x["Recipient"], frontend_log))
+transaction_data = list(map(lambda x: "" if "Transaction" not in x else x["Transaction"], frontend_log))
+message_data = list(map(lambda x: "" if "Message" not in x else x["Message"], frontend_log))
+view_data = list(map(lambda x: "" if "View" not in x else x["View"], frontend_log))
+num_transaction_data = list(map(lambda x: "" if "Num_transaction" not in x else x["Num_transaction"], frontend_log))
+result_data = list(map(lambda x: "" if "Result" not in x else x["Result"], frontend_log))
+
+frontend_log_data = pd.DataFrame({
+    "Type": type_data,
+    "Sender": sender_data,
+    "Recipient": recipient_data,
+    "Transaction": transaction_data,
+    "Message": message_data,
+    "View": view_data,
+    "Num_transaction": num_transaction_data,
+    "Result": result_data,
+    })
+
+frontend_log_data.to_csv("../frontend/display/frontend_log.csv")
 
 # sys.stdout.close()

@@ -1,243 +1,1730 @@
-Run Time: 10/30/2021 16:3612
-good 6 faulty 2
-Byzantine replicas [6 2]
 Transaction 0 ['Ana', 'Elisa', 400]
-PRIMARY ELECTION
-Primary selected 0
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 0, 'Num_transaction': 0} Replica_0
+primary status Replica_0 True
+None Replica_0
+primary status Replica_1 False
+None Replica_0
+primary status Replica_2 False
+None Replica_0
+primary status Replica_3 False
 replica inform done
-
 PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 0, 'Num_transaction': 0}]
+Replica_1 pre-prepare message received!
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 0, 'Num_transaction': 0}]
+primary has sent the pre-prepare messages
+Replica_2 pre-prepare message received!
+Main Replica_0 pre-prepare phase done
+Replica_3 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 0, 'Num_transaction': 0}]
+Replica_3 pre-prepare message received!
 Main Replica_1 pre-prepare phase done
 Main Replica_2 pre-prepare phase done
 Main Replica_3 pre-prepare phase done
-Main Replica_4 pre-prepare phase done
-Main Replica_5 pre-prepare phase done
-Main Replica_6 pre-prepare phase done
-Main Replica_0 pre-prepare phase done
-Main Replica_7 pre-prepare phase done
-
 PREPARE PHASE
-Main Replica_0 prepare phase done
+start prepare phase
+start prepare phase
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 0, 'Num_transaction': 0}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 0, 'Num_transaction': 0}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 0, 'Num_transaction': 0}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 0, 'Num_transaction': 0}}]
+Replica_3 has sent prepare messages
+Replica_1 has sent prepare messages
+Replica_0 prepare messages received!
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 0, 'Num_transaction': 0}}]
 Main Replica_2 prepare phase done
-Main Replica_6 prepare phase done
-Main Replica_4 prepare phase done
-Main Replica_3 prepare phase done
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 0, 'Num_transaction': 0}}]
+Main Replica_0 prepare phase done
+Replica_1 prepare messages received!
 Main Replica_1 prepare phase done
-Main Replica_5 prepare phase done
-Main Replica_7 prepare phase done
-
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 0, 'Num_transaction': 0}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 0, 'Num_transaction': 0}}]
+Replica_3 prepare messages received!
+Main Replica_3 prepare phase done
 COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+Replica_1 has sent commit messages
+start commit phase
+Replica_0 has sent commit messages
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_3 has sent commit messages
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
 Main Replica_2 commit phase done
-Main Replica_1 commit phase done
-Main Replica_4 commit phase done
-Main Replica_3 commit phase done
-Main Replica_7 commit phase done
-Main Replica_5 commit phase done
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_0 commit messages received!
+Replica_1 commit messages received!
+Replica_3 commit messages received!
 Main Replica_0 commit phase done
-Main Replica_6 commit phase done
-
+Main Replica_1 commit phase done
+Main Replica_3 commit phase done
 INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_0 has sent inform message to client
+Replica_3 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 0, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client received [{'Type': 'Inform', 'Sender': 'Replica_3', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 0, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
 Main move to the next transaction
-
-
-
-Transaction 1 ['Bo', 'Elisa', 100]
-PRIMARY ELECTION
-Primary selected 1
+Transaction 1 ['Ana', 'Elisa', 400]
+None Replica_1
+None Replica_1
+primary status Replica_0 False
+primary status Replica_2 False
+None Replica_1
+primary status Replica_3 False
+Replica_1 has sent inform message to client
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 1, 'Num_transaction': 1} Replica_1
+primary status Replica_1 True
 replica inform done
-
 PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 1, 'Num_transaction': 1}]
+primary has sent the pre-prepare messages
+Replica_2 pre-prepare message received!
+Replica_3 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 1, 'Num_transaction': 1}]
+Main Replica_1 pre-prepare phase done
+Replica_3 pre-prepare message received!
+Main Replica_2 pre-prepare phase done
+Main Replica_3 pre-prepare phase done
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 1, 'Num_transaction': 1}]
+Replica_0 pre-prepare message received!
+Main Replica_0 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+Replica_0 has sent prepare messages
+start prepare phase
+start prepare phase
+start prepare phase
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 1, 'Num_transaction': 1}}]
+Replica_1 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 1, 'Num_transaction': 1}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 1, 'Num_transaction': 1}}]
+Replica_3 has sent prepare messages
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 1, 'Num_transaction': 1}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 1, 'Num_transaction': 1}}]
+Main Replica_2 prepare phase done
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 1, 'Num_transaction': 1}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 1, 'Num_transaction': 1}}]
+Replica_0 prepare messages received!
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 1, 'Num_transaction': 1}}]
+Replica_1 prepare messages received!
+Replica_3 prepare messages received!
+Main Replica_0 prepare phase done
+Main Replica_1 prepare phase done
+Main Replica_3 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+Replica_0 has sent commit messages
+start commit phase
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_1 has sent commit messages
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 has sent commit messages
+Main Replica_2 commit phase done
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_0 commit messages received!
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 commit messages received!
+Main Replica_0 commit phase done
+Replica_3 commit messages received!
+Main Replica_1 commit phase done
+Main Replica_3 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 1, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_0 has sent inform message to client
+Replica_3 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_3', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 1, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_1 has sent inform message to client
+client has received inform messages!
+Main move to the next transaction
+Transaction 2 ['Ana', 'Elisa', 400]
+None Replica_2
+primary status Replica_0 False
+None Replica_2
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 2, 'Num_transaction': 2} Replica_2
+primary status Replica_1 False
+primary status Replica_2 True
+None Replica_2
+primary status Replica_3 False
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+Transaction 2 ['Ana', 'Elisa', 400]
+None Replica_3
+None Replica_3
+None Replica_3
+primary status Replica_0 False
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 2} Replica_3
+primary status Replica_1 False
+primary status Replica_2 False
+primary status Replica_3 True
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+primary has sent the pre-prepare messages
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 2}]
+Main True
+Replica_0 pre-prepare message received!
+Main Replica_3 pre-prepare phase done
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 2}]
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 2}]
+Main Replica_0 pre-prepare phase done
+Replica_2 pre-prepare message received!
+Replica_1 pre-prepare message received!
+Main Replica_2 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 2}}]
+Replica_1 has sent prepare messages
+Replica_3 has sent prepare messages
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 2}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 2}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 2}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 2}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 2}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 2}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 2}}]
+Replica_0 prepare messages received!
+Main Replica_2 prepare phase done
+Replica_1 prepare messages received!
+Replica_3 prepare messages received!
+Main Replica_0 prepare phase done
+Main Replica_1 prepare phase done
+Main Replica_3 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+Replica_0 has sent commit messages
+Replica_1 has sent commit messages
+start commit phase
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 has sent commit messages
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Main Replica_2 commit phase done
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_1 commit messages received!
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_0 commit messages received!
+Replica_3 commit messages received!
+Main Replica_1 commit phase done
+Main Replica_0 commit phase done
+Main Replica_3 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 2, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_0 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_1', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 2, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_1 has sent inform message to client
+Replica_3 has sent inform message to client
+client has received inform messages!
+Main move to the next transaction
+Transaction 3 ['Ana', 'Elisa', 400]
+None Replica_3
+None Replica_3
+primary status Replica_2 False
+primary status Replica_1 False
+None Replica_3
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 3} Replica_3
+primary status Replica_0 False
+primary status Replica_3 True
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+primary has sent the pre-prepare messages
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 3}]
+Replica_1 pre-prepare message received!
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 3}]
+Main Replica_3 pre-prepare phase done
+Replica_0 pre-prepare message received!
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 3}]
+Main Replica_1 pre-prepare phase done
+Replica_2 pre-prepare message received!
 Main Replica_0 pre-prepare phase done
 Main Replica_2 pre-prepare phase done
-Main Replica_4 pre-prepare phase done
-Main Replica_3 pre-prepare phase done
-Main Replica_1 pre-prepare phase done
-Main Replica_6 pre-prepare phase done
-Main Replica_7 pre-prepare phase done
-Main Replica_5 pre-prepare phase done
-
 PREPARE PHASE
-Main Replica_0 prepare phase done
-Main Replica_1 prepare phase done
-Main Replica_4 prepare phase done
+start prepare phase
+start prepare phase
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+Replica_1 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 3}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 3}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 3}}]
+Replica_3 has sent prepare messages
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 3}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 3}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 3}}]
+Replica_0 prepare messages received!
 Main Replica_2 prepare phase done
-Main Replica_7 prepare phase done
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 3}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 3, 'Num_transaction': 3}}]
+Replica_1 prepare messages received!
+Main Replica_0 prepare phase done
+Replica_3 prepare messages received!
+Main Replica_1 prepare phase done
 Main Replica_3 prepare phase done
-Main Replica_6 prepare phase done
-Main Replica_5 prepare phase done
-
 COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+start commit phase
+Replica_0 has sent commit messages
+Replica_1 has sent commit messages
+Replica_3 has sent commit messages
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
 Main Replica_2 commit phase done
-Main Replica_6 commit phase done
-Main Replica_3 commit phase done
-Main Replica_4 commit phase done
-Main Replica_7 commit phase done
-Main Replica_5 commit phase done
-Main Replica_0 commit phase done
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 commit messages received!
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 commit messages received!
+Replica_0 commit messages received!
 Main Replica_1 commit phase done
-
+Main Replica_3 commit phase done
+Main Replica_0 commit phase done
 INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+client received [{'Type': 'Inform', 'Sender': 'Replica_3', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 3, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_3 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 3, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_0 has sent inform message to client
+client has received inform messages!
 Main move to the next transaction
-
-
-
-Transaction 2 ['Elisa', 'Ana', 20]
-PRIMARY ELECTION
-Primary selected 2
+Replica_1 has sent inform message to client
+Transaction 4 ['Ana', 'Elisa', 400]
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 4, 'Num_transaction': 4} Replica_0
+primary status Replica_0 True
+None Replica_0
+None Replica_0
+None Replica_0
+primary status Replica_1 False
+primary status Replica_2 False
+primary status Replica_3 False
 replica inform done
-
 PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 4, 'Num_transaction': 4}]
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 4, 'Num_transaction': 4}]
+primary has sent the pre-prepare messages
+Replica_2 pre-prepare message received!
+Replica_1 pre-prepare message received!
+Replica_3 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 4, 'Num_transaction': 4}]
 Main Replica_0 pre-prepare phase done
-Main Replica_1 pre-prepare phase done
-Main Replica_3 pre-prepare phase done
-Main Replica_4 pre-prepare phase done
-Main Replica_5 pre-prepare phase done
-Main Replica_6 pre-prepare phase done
-Main Replica_2 pre-prepare phase done
-Main Replica_7 pre-prepare phase done
-
-PREPARE PHASE
-Main Replica_0 prepare phase done
-Main Replica_6 prepare phase done
-Main Replica_3 prepare phase done
-Main Replica_1 prepare phase done
-Main Replica_5 prepare phase done
-Main Replica_2 prepare phase done
-Main Replica_4 prepare phase done
-Main Replica_7 prepare phase done
-
-COMMIT PHASE
-Main Replica_2 commit phase done
-Main Replica_3 commit phase done
-Main Replica_6 commit phase done
-Main Replica_5 commit phase done
-Main Replica_4 commit phase done
-Main Replica_1 commit phase done
-Main Replica_7 commit phase done
-Main Replica_0 commit phase done
-
-INFORM CLIENT
-Main move to the next transaction
-
-
-
-Transaction 3 ['Bo', 'Ana', 2]
-PRIMARY ELECTION
-Primary selected 3
-replica inform done
-
-PRE-PREPARE PHASE
-Main Replica_0 pre-prepare phase done
-Main Replica_1 pre-prepare phase done
-Main Replica_4 pre-prepare phase done
-Main Replica_3 pre-prepare phase done
-Main Replica_7 pre-prepare phase done
-Main Replica_5 pre-prepare phase done
-Main Replica_6 pre-prepare phase done
-Main Replica_2 pre-prepare phase done
-
-PREPARE PHASE
-Main Replica_0 prepare phase done
-Main Replica_3 prepare phase done
-Main Replica_1 prepare phase done
-Main Replica_5 prepare phase done
-Main Replica_4 prepare phase done
-Main Replica_2 prepare phase done
-Main Replica_6 prepare phase done
-Main Replica_7 prepare phase done
-
-COMMIT PHASE
-Main Replica_0 commit phase done
-Main Replica_5 commit phase done
-Main Replica_2 commit phase done
-Main Replica_4 commit phase done
-Main Replica_3 commit phase done
-Main Replica_7 commit phase done
-Main Replica_1 commit phase done
-Main Replica_6 commit phase done
-
-INFORM CLIENT
-Main move to the next transaction
-
-
-
-Transaction 4 ['Ana', 'Bo', 100]
-PRIMARY ELECTION
-Primary selected 4
-replica inform done
-
-PRE-PREPARE PHASE
-Main Replica_1 pre-prepare phase done
-Main Replica_0 pre-prepare phase done
-Main Replica_3 pre-prepare phase done
-Main Replica_4 pre-prepare phase done
-Main Replica_5 pre-prepare phase done
-Main Replica_6 pre-prepare phase done
-Main Replica_2 pre-prepare phase done
-Main Replica_7 pre-prepare phase done
-
-PREPARE PHASE
-Main Replica_2 prepare phase done
-Main Replica_6 prepare phase done
-Main Replica_1 prepare phase done
-Main Replica_4 prepare phase done
-Main Replica_3 prepare phase done
-Main Replica_7 prepare phase done
-Main Replica_5 prepare phase done
-Main Replica_0 prepare phase done
-
-COMMIT PHASE
-Main Replica_2 commit phase done
-Main Replica_6 commit phase done
-Main Replica_4 commit phase done
-Main Replica_5 commit phase done
-Main Replica_0 commit phase done
-Main Replica_1 commit phase done
-Main Replica_7 commit phase done
-Main Replica_3 commit phase done
-
-INFORM CLIENT
-Main move to the next transaction
-
-
-
-Transaction 5 ['Elisa', 'Ana', 1]
-PRIMARY ELECTION
-Primary selected 5
-replica inform done
-
-PRE-PREPARE PHASE
+Replica_3 pre-prepare message received!
 Main Replica_2 pre-prepare phase done
 Main Replica_1 pre-prepare phase done
-Main Replica_0 pre-prepare phase done
 Main Replica_3 pre-prepare phase done
-Main Replica_4 pre-prepare phase done
-Main Replica_7 pre-prepare phase done
-Main Replica_5 pre-prepare phase done
-Main Replica_6 pre-prepare phase done
-
 PREPARE PHASE
-Main Replica_0 prepare phase done
-Main Replica_6 prepare phase done
-Main Replica_1 prepare phase done
-Main Replica_7 prepare phase done
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+start prepare phase
+start prepare phase
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 4, 'Num_transaction': 4}}]
+Replica_1 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 4, 'Num_transaction': 4}}]
+Replica_3 has sent prepare messages
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 4, 'Num_transaction': 4}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 4, 'Num_transaction': 4}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 4, 'Num_transaction': 4}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 4, 'Num_transaction': 4}}]
+Replica_0 prepare messages received!
 Main Replica_2 prepare phase done
-Main Replica_4 prepare phase done
-Main Replica_5 prepare phase done
+Replica_1 prepare messages received!
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 4, 'Num_transaction': 4}}]
+Main Replica_0 prepare phase done
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 4, 'Num_transaction': 4}}]
+Main Replica_1 prepare phase done
+Replica_3 prepare messages received!
 Main Replica_3 prepare phase done
-
 COMMIT PHASE
+start commit phase
+start commit phase
+Replica_0 has sent commit messages
+start commit phase
+Replica_1 has sent commit messages
+start commit phase
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 has sent commit messages
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
 Main Replica_2 commit phase done
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 commit messages received!
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_0 commit messages received!
 Main Replica_1 commit phase done
-Main Replica_5 commit phase done
-Main Replica_6 commit phase done
-Main Replica_4 commit phase done
+Replica_3 commit messages received!
 Main Replica_0 commit phase done
-Main Replica_7 commit phase done
 Main Replica_3 commit phase done
-
 INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_3 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_3', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 4, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_1 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_1', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 4, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
+Replica_0 has sent inform message to client
 Main move to the next transaction
-
-
-
+Transaction 5 ['Ana', 'Elisa', 400]
+None Replica_1
+primary status Replica_0 False
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 5, 'Num_transaction': 5} Replica_1
+primary status Replica_1 True
+None Replica_1
+None Replica_1
+primary status Replica_3 False
+primary status Replica_2 False
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+primary has sent the pre-prepare messages
+Replica_3 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 5, 'Num_transaction': 5}]
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 5, 'Num_transaction': 5}]
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 5, 'Num_transaction': 5}]
+Replica_3 pre-prepare message received!
+Replica_0 pre-prepare message received!
+Replica_2 pre-prepare message received!
+Main Replica_1 pre-prepare phase done
+Main Replica_3 pre-prepare phase done
+Main Replica_0 pre-prepare phase done
+Main Replica_2 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+start prepare phase
+start prepare phase
+Replica_1 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 5, 'Num_transaction': 5}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 5, 'Num_transaction': 5}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 5, 'Num_transaction': 5}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 5, 'Num_transaction': 5}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 5, 'Num_transaction': 5}}]
+Replica_0 prepare messages received!
+Replica_3 has sent prepare messages
+Main Replica_2 prepare phase done
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 5, 'Num_transaction': 5}}]
+Main Replica_0 prepare phase done
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 5, 'Num_transaction': 5}}]
+Replica_1 prepare messages received!
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 5, 'Num_transaction': 5}}]
+Replica_3 prepare messages received!
+Main Replica_1 prepare phase done
+Main Replica_3 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+start commit phase
+Replica_1 has sent commit messages
+Replica_0 has sent commit messages
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_3 has sent commit messages
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Main Replica_2 commit phase done
+Replica_0 commit messages received!
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 commit messages received!
+Replica_1 commit messages received!
+Main Replica_0 commit phase done
+Main Replica_3 commit phase done
+Main Replica_1 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_0 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 5, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_1 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_1', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 5, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
+Replica_3 has sent inform message to client
+Main move to the next transaction
+Transaction 6 ['Ana', 'Elisa', 400]
+None Replica_2
+primary status Replica_0 False
+None Replica_2
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 6, 'Num_transaction': 6} Replica_2
+primary status Replica_1 False
+None Replica_2
+primary status Replica_2 True
+primary status Replica_3 False
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+Transaction 6 ['Ana', 'Elisa', 400]
+None Replica_3
+None Replica_3
+None Replica_3
+primary status Replica_1 False
+PRE-PREPARE PHASE
+primary status Replica_2 False
+primary status Replica_0 False
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 6} Replica_3
+start pre-prepare phase
+start pre-prepare phase
+primary status Replica_3 True
+start pre-prepare phase
+start pre-prepare phase
+Main True
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 6}]
+primary has sent the pre-prepare messages
+Replica_0 pre-prepare message received!
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 6}]
+Main Replica_3 pre-prepare phase done
+Replica_1 pre-prepare message received!
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 6}]
+Main Replica_0 pre-prepare phase done
+Replica_2 pre-prepare message received!
+Main Replica_1 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+start prepare phase
+Main Replica_2 pre-prepare phase done
+start prepare phase
+Replica_1 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 6}}]
+Replica_0 has sent prepare messages
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 6}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 6}}]
+Replica_3 has sent prepare messages
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 6}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 6}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 6}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 6}}]
+Main Replica_2 prepare phase done
+Replica_1 prepare messages received!
+Replica_0 prepare messages received!
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 6}}]
+Main Replica_1 prepare phase done
+Replica_3 prepare messages received!
+Main Replica_0 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+start commit phase
+Replica_0 has sent commit messages
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 has sent commit messages
+Replica_1 has sent commit messages
+Main Replica_2 commit phase done
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_0 commit messages received!
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 commit messages received!
+Replica_3 commit messages received!
+Main Replica_0 commit phase done
+Main Replica_1 commit phase done
+Main Replica_3 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_0 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 6, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_1 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_1', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 6, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
+Main move to the next transaction
+Transaction 7 ['Ana', 'Elisa', 400]
+None Replica_3
+None Replica_3
+primary status Replica_0 False
+None Replica_3
+primary status Replica_1 False
+primary status Replica_2 False
+Replica_3 has sent inform message to client
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 7} Replica_3
+replica inform done
+primary status Replica_3 True
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+primary has sent the pre-prepare messages
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 7}]
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 7}]
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 7}]
+Replica_2 pre-prepare message received!
+Main Replica_3 pre-prepare phase done
+Replica_1 pre-prepare message received!
+Replica_0 pre-prepare message received!
+Main Replica_2 pre-prepare phase done
+Main Replica_1 pre-prepare phase done
+Main Replica_0 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+start prepare phase
+start prepare phase
+Replica_1 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 7}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 7}}]
+Replica_3 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 7}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 7}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 7}}]
+Replica_0 prepare messages received!
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 7}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 7}}]
+Main Replica_2 prepare phase done
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 7, 'Num_transaction': 7}}]
+Replica_1 prepare messages received!
+Replica_3 prepare messages received!
+Main Replica_0 prepare phase done
+Main Replica_1 prepare phase done
+Main Replica_3 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+start commit phase
+Replica_1 has sent commit messages
+Replica_0 has sent commit messages
+Replica_3 has sent commit messages
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_1 commit messages received!
+Main Replica_2 commit phase done
+Replica_3 commit messages received!
+Replica_0 commit messages received!
+Main Replica_1 commit phase done
+Main Replica_3 commit phase done
+Main Replica_0 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_0 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 7, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client received [{'Type': 'Inform', 'Sender': 'Replica_1', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 7, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
+Replica_1 has sent inform message to client
+Main move to the next transaction
+Transaction 8 ['Ana', 'Elisa', 400]
+Replica_3 has sent inform message to client
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 8, 'Num_transaction': 8} Replica_0
+None Replica_0
+primary status Replica_0 True
+None Replica_0
+primary status Replica_1 False
+None Replica_0
+primary status Replica_2 False
+primary status Replica_3 False
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 8, 'Num_transaction': 8}]
+primary has sent the pre-prepare messages
+start pre-prepare phase
+Replica_2 pre-prepare message received!
+Main Replica_0 pre-prepare phase done
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 8, 'Num_transaction': 8}]
+Replica_3 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 8, 'Num_transaction': 8}]
+Replica_1 pre-prepare message received!
+Replica_3 pre-prepare message received!
+Main Replica_2 pre-prepare phase done
+Main Replica_1 pre-prepare phase done
+Main Replica_3 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+start prepare phase
+start prepare phase
+Replica_1 has sent prepare messages
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 8, 'Num_transaction': 8}}]
+Replica_3 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 8, 'Num_transaction': 8}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 8, 'Num_transaction': 8}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 8, 'Num_transaction': 8}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 8, 'Num_transaction': 8}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 8, 'Num_transaction': 8}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 8, 'Num_transaction': 8}}]
+Replica_0 prepare messages received!
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 8, 'Num_transaction': 8}}]
+Main Replica_2 prepare phase done
+Replica_3 prepare messages received!
+Replica_1 prepare messages received!
+Main Replica_0 prepare phase done
+Main Replica_3 prepare phase done
+Main Replica_1 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+start commit phase
+Replica_0 has sent commit messages
+Replica_3 has sent commit messages
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_1 has sent commit messages
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_0 commit messages received!
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Main Replica_2 commit phase done
+Replica_3 commit messages received!
+Replica_1 commit messages received!
+Main Replica_0 commit phase done
+Main Replica_3 commit phase done
+Main Replica_1 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_0 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 8, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_1 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_1', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 8, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
+Replica_3 has sent inform message to client
+Main move to the next transaction
+Transaction 9 ['Ana', 'Elisa', 400]
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 9, 'Num_transaction': 9} Replica_1
+None Replica_1
+primary status Replica_1 True
+None Replica_1
+primary status Replica_0 False
+None Replica_1
+primary status Replica_2 False
+primary status Replica_3 False
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+primary has sent the pre-prepare messages
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 9, 'Num_transaction': 9}]
+Main Replica_1 pre-prepare phase done
+Replica_2 pre-prepare message received!
+Replica_3 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 9, 'Num_transaction': 9}]
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 9, 'Num_transaction': 9}]
+Main Replica_2 pre-prepare phase done
+Replica_3 pre-prepare message received!
+Replica_0 pre-prepare message received!
+Main Replica_3 pre-prepare phase done
+Main Replica_0 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+start prepare phase
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 9, 'Num_transaction': 9}}]
+Replica_1 has sent prepare messages
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 9, 'Num_transaction': 9}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 9, 'Num_transaction': 9}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 9, 'Num_transaction': 9}}]
+Replica_3 has sent prepare messages
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 9, 'Num_transaction': 9}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 9, 'Num_transaction': 9}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 9, 'Num_transaction': 9}}]
+Replica_1 prepare messages received!
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 9, 'Num_transaction': 9}}]
+Main Replica_2 prepare phase done
+Replica_0 prepare messages received!
+Main Replica_1 prepare phase done
+Replica_3 prepare messages received!
+Main Replica_0 prepare phase done
+Main Replica_3 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+Replica_0 has sent commit messages
+start commit phase
+start commit phase
+Replica_1 has sent commit messages
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 has sent commit messages
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_0 commit messages received!
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Main Replica_2 commit phase done
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 commit messages received!
+Replica_3 commit messages received!
+Main Replica_0 commit phase done
+Main Replica_1 commit phase done
+Main Replica_3 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+client received [{'Type': 'Inform', 'Sender': 'Replica_1', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 9, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_0 has sent inform message to client
+Replica_1 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 9, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
+Main move to the next transaction
+Replica_3 has sent inform message to client
+Transaction 10 ['Ana', 'Elisa', 400]
+None Replica_2
+primary status Replica_0 False
+None Replica_2
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 10, 'Num_transaction': 10} Replica_2
+primary status Replica_1 False
+primary status Replica_2 True
+None Replica_2
+primary status Replica_3 False
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+Transaction 10 ['Ana', 'Elisa', 400]
+None Replica_3
+PRE-PREPARE PHASE
+None Replica_3
+None Replica_3
+primary status Replica_0 False
+primary status Replica_2 False
+primary status Replica_1 False
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 10} Replica_3
+start pre-prepare phase
+primary status Replica_3 True
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 10}]
+Main True
+primary has sent the pre-prepare messages
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 10}]
+Replica_1 pre-prepare message received!
+Main Replica_3 pre-prepare phase done
+Replica_0 pre-prepare message received!
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 10}]
+Main Replica_1 pre-prepare phase done
+Replica_2 pre-prepare message received!
+Main Replica_0 pre-prepare phase done
+PREPARE PHASE
+Main Replica_2 pre-prepare phase done
+start prepare phase
+start prepare phase
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+Replica_1 has sent prepare messages
+Replica_3 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 10}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 10}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 10}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 10}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 10}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 10}}]
+Main Replica_2 prepare phase done
+Replica_0 prepare messages received!
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 10}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 10}}]
+Replica_3 prepare messages received!
+Main Replica_0 prepare phase done
+Replica_1 prepare messages received!
+Main Replica_3 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+start commit phase
+Replica_1 has sent commit messages
+Replica_0 has sent commit messages
+Replica_3 has sent commit messages
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Main Replica_2 commit phase done
+Replica_1 commit messages received!
+Replica_0 commit messages received!
+Replica_3 commit messages received!
+Main Replica_1 commit phase done
+Main Replica_0 commit phase done
+Main Replica_3 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_0 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 10, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_1 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_1', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 10, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
+Replica_3 has sent inform message to client
+Main move to the next transaction
+Transaction 11 ['Ana', 'Elisa', 400]
+None Replica_3
+primary status Replica_0 False
+None Replica_3
+None Replica_3
+primary status Replica_2 False
+primary status Replica_1 False
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 11} Replica_3
+primary status Replica_3 True
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 11}]
+primary has sent the pre-prepare messages
+Replica_0 pre-prepare message received!
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 11}]
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 11}]
+Main Replica_3 pre-prepare phase done
+Replica_2 pre-prepare message received!
+Main Replica_0 pre-prepare phase done
+Replica_1 pre-prepare message received!
+Main Replica_2 pre-prepare phase done
+Main Replica_1 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+Replica_1 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 11}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 11}}]
+Replica_3 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 11}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 11}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 11}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 11}}]
+Replica_0 prepare messages received!
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 11}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 11, 'Num_transaction': 11}}]
+Replica_1 prepare messages received!
+Main Replica_2 prepare phase done
+Replica_3 prepare messages received!
+Main Replica_0 prepare phase done
+Main Replica_1 prepare phase done
+Main Replica_3 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+start commit phase
+Replica_0 has sent commit messages
+Replica_1 has sent commit messages
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 has sent commit messages
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_1 commit messages received!
+Replica_0 commit messages received!
+Main Replica_2 commit phase done
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Main Replica_1 commit phase done
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Main Replica_0 commit phase done
+Replica_3 commit messages received!
+Main Replica_3 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_1 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_1', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 11, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_3 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_3', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 11, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
+Main move to the next transaction
+Transaction 12 ['Ana', 'Elisa', 400]
+Replica_0 has sent inform message to client
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 12, 'Num_transaction': 12} Replica_0
+None Replica_0
+primary status Replica_0 True
+primary status Replica_1 False
+None Replica_0
+primary status Replica_2 False
+None Replica_0
+primary status Replica_3 False
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+primary has sent the pre-prepare messages
+start pre-prepare phase
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 12, 'Num_transaction': 12}]
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 12, 'Num_transaction': 12}]
+Replica_2 pre-prepare message received!
+Replica_3 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 12, 'Num_transaction': 12}]
+Main Replica_0 pre-prepare phase done
+Replica_1 pre-prepare message received!
+Replica_3 pre-prepare message received!
+Main Replica_2 pre-prepare phase done
+Main Replica_1 pre-prepare phase done
+Main Replica_3 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+start prepare phase
+Replica_1 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 12, 'Num_transaction': 12}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 12, 'Num_transaction': 12}}]
+Replica_3 has sent prepare messages
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 12, 'Num_transaction': 12}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 12, 'Num_transaction': 12}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 12, 'Num_transaction': 12}}]
+Replica_0 prepare messages received!
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 12, 'Num_transaction': 12}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 12, 'Num_transaction': 12}}]
+Main Replica_2 prepare phase done
+Replica_1 prepare messages received!
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 12, 'Num_transaction': 12}}]
+Replica_3 prepare messages received!
+Main Replica_0 prepare phase done
+Main Replica_1 prepare phase done
+Main Replica_3 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+Replica_0 has sent commit messages
+start commit phase
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_3 has sent commit messages
+Replica_1 has sent commit messages
+Main Replica_2 commit phase done
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 commit messages received!
+Replica_0 commit messages received!
+Replica_1 commit messages received!
+Main Replica_3 commit phase done
+Main Replica_0 commit phase done
+Main Replica_1 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_3 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_3', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 12, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_0 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 12, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_1 has sent inform message to client
+client has received inform messages!
+Main move to the next transaction
+Transaction 13 ['Ana', 'Elisa', 400]
+None Replica_1
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 13, 'Num_transaction': 13} Replica_1
+primary status Replica_0 False
+None Replica_1
+primary status Replica_1 True
+primary status Replica_2 False
+None Replica_1
+primary status Replica_3 False
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+primary has sent the pre-prepare messages
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 13, 'Num_transaction': 13}]
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 13, 'Num_transaction': 13}]
+Replica_0 pre-prepare message received!
+Replica_3 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 13, 'Num_transaction': 13}]
+Main Replica_1 pre-prepare phase done
+Replica_2 pre-prepare message received!
+Replica_3 pre-prepare message received!
+Main Replica_0 pre-prepare phase done
+Main Replica_2 pre-prepare phase done
+Main Replica_3 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+Replica_1 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 13, 'Num_transaction': 13}}]
+Replica_3 has sent prepare messages
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 13, 'Num_transaction': 13}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 13, 'Num_transaction': 13}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 13, 'Num_transaction': 13}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 13, 'Num_transaction': 13}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 13, 'Num_transaction': 13}}]
+Main Replica_2 prepare phase done
+Replica_0 prepare messages received!
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 13, 'Num_transaction': 13}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 13, 'Num_transaction': 13}}]
+Replica_1 prepare messages received!
+Replica_3 prepare messages received!
+Main Replica_0 prepare phase done
+Main Replica_1 prepare phase done
+Main Replica_3 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+Replica_0 has sent commit messages
+start commit phase
+Replica_1 has sent commit messages
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+start commit phase
+Replica_3 has sent commit messages
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_0 commit messages received!
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Main Replica_2 commit phase done
+Replica_1 commit messages received!
+Replica_3 commit messages received!
+Main Replica_0 commit phase done
+Main Replica_1 commit phase done
+Main Replica_3 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_0 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 13, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_3 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_3', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 13, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
+Main move to the next transaction
+Replica_1 has sent inform message to client
+Transaction 14 ['Ana', 'Elisa', 400]
+None Replica_2
+None Replica_2
+primary status Replica_0 False
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 14, 'Num_transaction': 14} Replica_2
+primary status Replica_1 False
+primary status Replica_2 True
+None Replica_2
+primary status Replica_3 False
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+Transaction 14 ['Ana', 'Elisa', 400]
+None Replica_3
+None Replica_3
+primary status Replica_0 False
+primary status Replica_1 False
+None Replica_3
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 14} Replica_3
+primary status Replica_2 False
+PRE-PREPARE PHASE
+primary status Replica_3 True
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+primary has sent the pre-prepare messages
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 14}]
+Main True
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 14}]
+Replica_2 pre-prepare message received!
+Main Replica_3 pre-prepare phase done
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 14}]
+Replica_0 pre-prepare message received!
+Replica_1 pre-prepare message received!
+Main Replica_2 pre-prepare phase done
+Main Replica_0 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+start prepare phase
+Replica_3 has sent prepare messages
+Replica_1 has sent prepare messages
+start prepare phase
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 14}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 14}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 14}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 14}}]
+Replica_0 has sent prepare messages
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 14}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 14}}]
+Replica_1 prepare messages received!
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 14}}]
+Main Replica_2 prepare phase done
+Replica_3 prepare messages received!
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 14}}]
+Main Replica_1 prepare phase done
+Replica_0 prepare messages received!
+Main Replica_3 prepare phase done
+Main Replica_0 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+Replica_1 has sent commit messages
+start commit phase
+Replica_0 has sent commit messages
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_3 has sent commit messages
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Main Replica_2 commit phase done
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_0 commit messages received!
+Replica_3 commit messages received!
+Replica_1 commit messages received!
+Main Replica_0 commit phase done
+Main Replica_3 commit phase done
+Main Replica_1 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_0 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 14, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_1 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_1', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 14, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_3 has sent inform message to client
+client has received inform messages!
+Main move to the next transaction
+Transaction 15 ['Ana', 'Elisa', 400]
+None Replica_3
+None Replica_3
+primary status Replica_0 False
+None Replica_3
+primary status Replica_1 False
+primary status Replica_2 False
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 15} Replica_3
+primary status Replica_3 True
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 15}]
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 15}]
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 15}]
+Replica_0 pre-prepare message received!
+Replica_1 pre-prepare message received!
+Main Replica_3 pre-prepare phase done
+Replica_2 pre-prepare message received!
+primary has sent the pre-prepare messages
+Main Replica_0 pre-prepare phase done
+Main Replica_1 pre-prepare phase done
+Main Replica_2 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+start prepare phase
+start prepare phase
+Replica_1 has sent prepare messages
+Replica_3 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 15}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 15}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 15}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 15}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 15}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 15}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 15}}]
+Replica_1 prepare messages received!
+Main Replica_2 prepare phase done
+Replica_0 prepare messages received!
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 15, 'Num_transaction': 15}}]
+Main Replica_1 prepare phase done
+Replica_3 prepare messages received!
+Main Replica_0 prepare phase done
+Main Replica_3 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+Replica_0 has sent commit messages
+start commit phase
+Replica_1 has sent commit messages
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 has sent commit messages
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_0 commit messages received!
+Main Replica_2 commit phase done
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 commit messages received!
+Main Replica_0 commit phase done
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Main Replica_1 commit phase done
+Replica_3 commit messages received!
+Main Replica_3 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_0 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 15, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_3 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_3', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 15, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
+Main move to the next transaction
+Transaction 16 ['Ana', 'Elisa', 400]
+Replica_1 has sent inform message to client
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 16, 'Num_transaction': 16} Replica_0
+None Replica_0
+primary status Replica_0 True
+primary status Replica_1 False
+None Replica_0
+None Replica_0
+primary status Replica_2 False
+primary status Replica_3 False
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+primary has sent the pre-prepare messages
+start pre-prepare phase
+Main Replica_0 pre-prepare phase done
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 16, 'Num_transaction': 16}]
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 16, 'Num_transaction': 16}]
+Replica_2 pre-prepare message received!
+Replica_1 pre-prepare message received!
+Replica_3 [{'Type': 'Pre-prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 16, 'Num_transaction': 16}]
+Main Replica_2 pre-prepare phase done
+Replica_3 pre-prepare message received!
+Main Replica_1 pre-prepare phase done
+Main Replica_3 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+Replica_1 has sent prepare messages
+start prepare phase
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 16, 'Num_transaction': 16}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 16, 'Num_transaction': 16}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 16, 'Num_transaction': 16}}]
+Replica_3 has sent prepare messages
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 16, 'Num_transaction': 16}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 16, 'Num_transaction': 16}}]
+Main Replica_2 prepare phase done
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 16, 'Num_transaction': 16}}]
+Replica_1 prepare messages received!
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 16, 'Num_transaction': 16}}]
+Replica_0 prepare messages received!
+Main Replica_1 prepare phase done
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 16, 'Num_transaction': 16}}]
+Main Replica_0 prepare phase done
+Replica_3 prepare messages received!
+Main Replica_3 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+start commit phase
+Replica_0 has sent commit messages
+Replica_1 has sent commit messages
+Replica_3 has sent commit messages
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Main Replica_2 commit phase done
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 commit messages received!
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 commit messages received!
+Replica_0 commit messages received!
+Main Replica_1 commit phase done
+Main Replica_3 commit phase done
+Main Replica_0 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_0 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 16, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_1 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_1', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 16, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
+Main move to the next transaction
+Transaction 17 ['Ana', 'Elisa', 400]
+Replica_3 has sent inform message to client
+None Replica_1
+primary status Replica_0 False
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 17, 'Num_transaction': 17} Replica_1
+None Replica_1
+primary status Replica_1 True
+primary status Replica_2 False
+None Replica_1
+primary status Replica_3 False
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 17, 'Num_transaction': 17}]
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 17, 'Num_transaction': 17}]
+Replica_0 pre-prepare message received!
+primary has sent the pre-prepare messages
+Replica_2 pre-prepare message received!
+Replica_3 [{'Type': 'Pre-prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 17, 'Num_transaction': 17}]
+Main Replica_1 pre-prepare phase done
+Replica_3 pre-prepare message received!
+Main Replica_0 pre-prepare phase done
+Main Replica_2 pre-prepare phase done
+Main Replica_3 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+start prepare phase
+Replica_1 has sent prepare messages
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 17, 'Num_transaction': 17}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 17, 'Num_transaction': 17}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 17, 'Num_transaction': 17}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 17, 'Num_transaction': 17}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 17, 'Num_transaction': 17}}]
+Replica_3 has sent prepare messages
+Replica_0 prepare messages received!
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 17, 'Num_transaction': 17}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 17, 'Num_transaction': 17}}]
+Main Replica_2 prepare phase done
+Replica_1 prepare messages received!
+Main Replica_0 prepare phase done
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 17, 'Num_transaction': 17}}]
+Replica_3 prepare messages received!
+Main Replica_1 prepare phase done
+Main Replica_3 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+start commit phase
+Replica_0 has sent commit messages
+Replica_3 has sent commit messages
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_1 has sent commit messages
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Main Replica_2 commit phase done
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_1 commit messages received!
+Replica_0 commit messages received!
+Replica_3 commit messages received!
+Main Replica_1 commit phase done
+Main Replica_0 commit phase done
+Main Replica_3 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_1 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_1', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 17, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_0 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_0', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 17, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
+Replica_3 has sent inform message to client
+Main move to the next transaction
+Transaction 18 ['Ana', 'Elisa', 400]
+None Replica_2
+None Replica_2
+primary status Replica_0 False
+primary status Replica_1 False
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 18, 'Num_transaction': 18} Replica_2
+None Replica_2
+primary status Replica_2 True
+primary status Replica_3 False
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+Transaction 18 ['Ana', 'Elisa', 400]
+None Replica_3
+None Replica_3
+primary status Replica_0 False
+PRE-PREPARE PHASE
+primary status Replica_1 False
+None Replica_3
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 18} Replica_3
+primary status Replica_3 True
+primary status Replica_2 False
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 18}]
+primary has sent the pre-prepare messages
+Main True
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 18}]
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 18}]
+Replica_1 pre-prepare message received!
+Replica_2 pre-prepare message received!
+Replica_0 pre-prepare message received!
+Main Replica_3 pre-prepare phase done
+Main Replica_1 pre-prepare phase done
+Main Replica_2 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+start prepare phase
+Replica_1 has sent prepare messages
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 18}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 18}}]
+Replica_3 has sent prepare messages
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 18}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 18}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 18}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 18}}]
+Replica_0 prepare messages received!
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 18}}]
+Replica_1 prepare messages received!
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 18}}]
+Main Replica_2 prepare phase done
+Replica_3 prepare messages received!
+Main Replica_0 prepare phase done
+Main Replica_1 prepare phase done
+Main Replica_3 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+start commit phase
+Replica_1 has sent commit messages
+Replica_3 has sent commit messages
+Replica_0 has sent commit messages
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Main Replica_2 commit phase done
+Replica_3 commit messages received!
+Replica_0 commit messages received!
+Replica_1 commit messages received!
+Main Replica_3 commit phase done
+Main Replica_0 commit phase done
+Main Replica_1 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_1 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_1', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 18, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_3 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_3', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 18, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
+Replica_0 has sent inform message to client
+Main move to the next transaction
+Transaction 19 ['Ana', 'Elisa', 400]
+None Replica_3
+None Replica_3
+None Replica_3
+primary status Replica_2 False
+primary status Replica_0 False
+{'Type': 'Transaction', 'Sender': 'Client', 'Recipient': 'Replica_3', 'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 19} Replica_3
+primary status Replica_1 False
+primary status Replica_3 True
+replica inform done
+PRE-PREPARE PHASE
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+start pre-prepare phase
+primary has sent the pre-prepare messages
+Replica_0 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 19}]
+Replica_1 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 19}]
+Replica_2 [{'Type': 'Pre-prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_2', 'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 19}]
+Main Replica_3 pre-prepare phase done
+Replica_2 pre-prepare message received!
+Replica_1 pre-prepare message received!
+Replica_0 pre-prepare message received!
+Main Replica_2 pre-prepare phase done
+Main Replica_1 pre-prepare phase done
+Main Replica_0 pre-prepare phase done
+PREPARE PHASE
+start prepare phase
+start prepare phase
+start prepare phase
+Replica_0 has sent prepare messages
+Replica_1 has sent prepare messages
+start prepare phase
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 19}}]
+Replica_3 has sent prepare messages
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 19}}]
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 19}}]
+Replica_0 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 19}}]
+Replica_1 [{'Type': 'Prepare', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 19}}]
+Replica_0 prepare messages received!
+Replica_1 prepare messages received!
+Replica_2 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 19}}]
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 19}}]
+Main Replica_0 prepare phase done
+Replica_3 [{'Type': 'Prepare', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': {'Transaction': ['Ana', 'Elisa', 400], 'View': 19, 'Num_transaction': 19}}]
+Main Replica_1 prepare phase done
+Replica_3 prepare messages received!
+Main Replica_2 prepare phase done
+Main Replica_3 prepare phase done
+COMMIT PHASE
+start commit phase
+start commit phase
+start commit phase
+Replica_0 has sent commit messages
+Replica_1 has sent commit messages
+start commit phase
+Replica_2 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_2', 'Message': True}]
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_3 has sent commit messages
+Replica_0 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_0', 'Message': True}]
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_1', 'Message': True}]
+Main Replica_2 commit phase done
+Replica_0 commit messages received!
+Replica_1 [{'Type': 'Commit', 'Sender': 'Replica_3', 'Recipient': 'Replica_1', 'Message': True}]
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_0', 'Recipient': 'Replica_3', 'Message': True}]
+Replica_1 commit messages received!
+Main Replica_0 commit phase done
+Replica_3 [{'Type': 'Commit', 'Sender': 'Replica_1', 'Recipient': 'Replica_3', 'Message': True}]
+Main Replica_1 commit phase done
+Replica_3 commit messages received!
+Main Replica_3 commit phase done
+INFORM CLIENT
+send inform messages
+send inform messages
+send inform messages
+send inform messages
+Replica_1 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_1', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 19, 'Result': {'Ana': 100, 'Elisa': 500}}]
+Replica_3 has sent inform message to client
+client received [{'Type': 'Inform', 'Sender': 'Replica_3', 'Recipient': 'Client', 'Transaction': ['Ana', 'Elisa', 400], 'Num_transaction': 19, 'Result': {'Ana': 100, 'Elisa': 500}}]
+client has received inform messages!
+Replica_0 has sent inform message to client
+Main move to the next transaction

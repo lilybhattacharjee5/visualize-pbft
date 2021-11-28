@@ -2,14 +2,19 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, request, render_template, redirect, url_for, session
 import pandas as pd
 from simulation.simulator import run_simulation
+import configparser
 
 default_num_replicas = 4
 default_num_byzantine = 1
 
+config = configparser.ConfigParser()
+config.read("app_settings.ini")
+settings = config["DEFAULT"]
+
 app = Flask(__name__, template_folder = ".")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bank.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'super secret key'
+app.secret_key = settings['SECRET_KEY']
 app.config['SESSION_TYPE'] = 'filesystem'
 app.static_folder = 'static'
 db = SQLAlchemy(app)

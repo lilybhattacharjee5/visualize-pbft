@@ -1,8 +1,7 @@
-d3.csv("frontend_log.csv").then(function(data) {
+function onload(data) {
     displayLog(data);
     generateForceGraph(data);
-});
-
+}
 
 // create the force directed graph
 function generateGraphData(data) {
@@ -103,7 +102,7 @@ function generateForceGraph(data) {
     svg.append("svg:defs").append("svg:marker")
         .attr("id", "end-arrow")
         .attr("viewBox", "0 -5 10 10")
-        .attr("refX", 10)
+        .attr("refX", 15)
         .attr("markerWidth", 3)
         .attr("markerHeight", 3)
         .attr("orient", "auto")
@@ -117,7 +116,7 @@ function generateForceGraph(data) {
     .selectAll("circle")
     .data(nodes)
     .join("circle")
-        .attr("r", 5);
+        .attr("r", 10);
 
     let text = svg.selectAll("text")
         .data(nodes)

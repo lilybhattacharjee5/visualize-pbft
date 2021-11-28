@@ -1,8 +1,10 @@
 <!DOCTYPE html>
     <head>
         <title>Visualize PBFT</title>
-        <link rel = "stylesheet" type = "text/css" href = "frontend/sb-admin-2.min.css" />
-        <link rel = "stylesheet" type = "text/css" href = "frontend/index.css" />
+        <!-- <link rel = "stylesheet" type = "text/css" href = "frontend/sb-admin-2.min.css" />
+        <link rel = "stylesheet" type = "text/css" href = "frontend/index.css" /> -->
+        <link rel = "stylesheet" type = "text/css" href = "{{ url_for('static', filename = 'sb-admin-2.min.css') }}" />
+        <link rel = "stylesheet" type = "text/css" href = "{{ url_for('static', filename = 'index.css') }}" />
     </head>
     </head>
     <body>
@@ -32,5 +34,9 @@
             </div>
         </div>
     </body>
-    <script type = "text/javascript" src = "./frontend/index.js"></script>
+    <script type = "text/javascript" src = "{{ url_for('static', filename = 'index.js') }}"></script>
+    <script type = "text/javascript">
+        var data = {{ data | tojson }};
+        onload(data);
+    </script>
 </html>

@@ -6,10 +6,12 @@ from datetime import datetime, date
 import sys
 import json
 import copy
-from client import send_transaction, replica_ack_primary, recv_inform
-from replica import send_view_change, send_new_view, recv_new_view, recv_preprepare, send_prepare, recv_prepare, send_commit, recv_commit, send_inform 
-from primary import send_preprepare
-from message_generator import generate_new_view_msg
+from simulation.client import send_transaction, replica_ack_primary, recv_inform
+from simulation.replica import send_view_change, send_new_view, recv_new_view, recv_preprepare, send_prepare, recv_prepare, send_commit, recv_commit, send_inform 
+from simulation.primary import send_preprepare
+from simulation.message_generator import generate_new_view_msg
+
+# mp = multiprocessing.get_context('spawn')
 
 # Possible Byzantine behavior to support
 # - insert forged client transactions into the system
@@ -21,12 +23,6 @@ from message_generator import generate_new_view_msg
 # Currently supported
 # - Byzantine replica(s) that do not respond to other replicas / client
 
-# sys.stdout = open('run_log.txt', 'w')
-
-# simulator inputs
-num_replicas = 4
-num_byzantine = 1
-
 np.random.seed(0)
 
 class JSONEncoderWithDictProxy(json.JSONEncoder):
@@ -34,12 +30,6 @@ class JSONEncoderWithDictProxy(json.JSONEncoder):
         if isinstance(o, mp.managers.DictProxy):
             return dict(o)
         return json.JSONEncoder.default(self, o)
-
-manager = mp.Manager()
-visible_log = manager.list()
-frontend_log = manager.list()
-
-print("Run Time:", date.today().strftime("%m/%d/%Y"), datetime.now().strftime("%H:%M%S"))
 
 def clear(q):
     try:
@@ -53,52 +43,8 @@ def clear_all_queues(q_list):
         for a in q:
             clear(a)
 
-# initialize mock db
-bank = {
-    "Ana": { "Balance": 500 },
-    "Bo": { "Balance": 200 },
-    "Elisa": { "Balance": 100 }
-}
-
-f = (num_replicas - 1) // 3
-g = num_replicas - f - 1 # for primary
-
-print("good", g, "faulty", f)
-
-# transactions = [
-#     ["Ana", "Elisa", 400],
-#     ["Bo", "Elisa", 100],
-#     ["Elisa", "Ana", 20],
-#     ["Bo", "Ana", 2],
-#     ["Ana", "Bo", 100],
-#     ["Elisa", "Ana", 1],
-#     ["Elisa", "Ana", 1]
-# ]
-transactions = [["Ana", "Elisa", 400] for i in range(3)] #20
-
-# select the random byzantine replicas
-byz_idxes = np.random.choice(np.arange(0, num_replicas), num_byzantine, replace = False)
-print("Byzantine replicas", byz_idxes)
-
-# calculations based on inputs
-num_transactions = len(transactions)
-
-client_name = "Client"
-replica_names = ["Replica_{}".format(r) for r in range(num_replicas)]
-byz_replica_names = ["Replica_{}".format(r) for r in byz_idxes]
-
-replica_logs = {}
-replica_bank_copies = {}
-for r in replica_names:
-    replica_logs[r] = manager.list()
-    replica_bank_copies[r] = manager.dict()
-    for user, data in bank.items():
-        replica_bank_copies[r][user] = manager.dict()
-        for k, v in data.items():
-            replica_bank_copies[r][user][k] = v
-
 ## TRANSACTION EXECUTION (TEMPORARY)
-def execute_transaction(curr_transaction, r_name):
+def execute_transaction(curr_transaction, r_name, replica_bank_copies):
     sender, receiver, amt = curr_transaction 
     # does sender have at least amt to transfer?
     replica_bank = replica_bank_copies[r_name]
@@ -107,7 +53,7 @@ def execute_transaction(curr_transaction, r_name):
     return { sender: replica_bank[sender]["Balance"], receiver: replica_bank[receiver]["Balance"] }
 
 ## MULTIPROCESSING
-def client_proc(transactions, queues, t_queue):
+def client_proc(client_name, transactions, queues, t_queue, m_queue, visible_log, frontend_log, num_replicas, f, g):
     to_client = queues[client_name]
 
     status = True
@@ -144,7 +90,7 @@ def client_proc(transactions, queues, t_queue):
         
         m_queue.put("move to the next transaction")
 
-def replica_proc(r_name, queues, byz_status):
+def replica_proc(r_name, client_name, queues, byz_status, t_queue, m_queue, visible_log, frontend_log, replica_logs, replica_bank_copies, f, g):
     to_client = queues[client_name]["to_machine"]
     to_curr_replica = queues[r_name]
     
@@ -209,168 +155,208 @@ def replica_proc(r_name, queues, byz_status):
 
         # execute transaction, generate optional result
         print("Executing transaction {} {}".format(curr_transaction, r_name))
-        result = execute_transaction(curr_transaction, r_name)
+        result = execute_transaction(curr_transaction, r_name, replica_bank_copies)
 
         send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, result, visible_log, frontend_log) # all replicas send an inform message to the client  
 
-all_machine_names = [client_name] + replica_names
-machine_queues = {}
-for a in range(len(all_machine_names)):
-    a_machine_name = all_machine_names[a]
-    curr_queue_to_a = mp.Queue()
-    curr_queue_to_a_from_main = mp.Queue()
-    machine_queues[a_machine_name] = {
-        "to_machine": curr_queue_to_a,
-        "from_main": curr_queue_to_a_from_main
+def run_simulation(num_replicas, num_byzantine):
+    manager = mp.Manager()
+    visible_log = manager.list()
+    frontend_log = manager.list()
+
+    print("Run Time:", date.today().strftime("%m/%d/%Y"), datetime.now().strftime("%H:%M%S"))
+
+    # initialize mock db
+    bank = {
+        "Ana": { "Balance": 500 },
+        "Bo": { "Balance": 200 },
+        "Elisa": { "Balance": 100 }
     }
 
-# spawn client and replica processes
-t_queue = mp.Queue()
-m_queue = mp.Queue()
-client = mp.Process(name = client_name, target = client_proc, args = (transactions, machine_queues, t_queue, ))
-replicas = [mp.Process(name = r_name, target = replica_proc, args = (r_name, machine_queues, r_name in byz_replica_names, )) for r_name in replica_names]
+    f = (num_replicas - 1) // 3
+    g = num_replicas - f - 1 # for primary
 
-client.start()
-for r in replicas:
-    r.start()
+    print("good", g, "faulty", f)
 
-# iteratively execute all transactions
-curr_view = 0
-p = 0
-for t in range(len(transactions)):
-    transaction_status = True
-    print(t, transactions[t], "main value")
-    while transaction_status:
-        visible_log.append("Transaction {} {}".format(t, transactions[t]))
+    # transactions = [
+    #     ["Ana", "Elisa", 400],
+    #     ["Bo", "Elisa", 100],
+    #     ["Elisa", "Ana", 20],
+    #     ["Bo", "Ana", 2],
+    #     ["Ana", "Bo", 100],
+    #     ["Elisa", "Ana", 1],
+    #     ["Elisa", "Ana", 1]
+    # ]
+    transactions = [["Ana", "Elisa", 400] for i in range(1)] #20
 
-        # visible_log.append("PRIMARY ELECTION")
-        print("PRIMARY ELECTION")
+    # select the random byzantine replicas
+    print("num byzantine", num_byzantine)
+    byz_idxes = np.random.choice(np.arange(0, num_replicas), num_byzantine, replace = False)
+    print("Byzantine replicas", byz_idxes)
+
+    # calculations based on inputs
+    num_transactions = len(transactions)
+
+    client_name = "Client"
+    replica_names = ["Replica_{}".format(r) for r in range(num_replicas)]
+    byz_replica_names = ["Replica_{}".format(r) for r in byz_idxes]
+
+    replica_logs = {}
+    replica_bank_copies = {}
+    for r in replica_names:
+        replica_logs[r] = manager.list()
+        replica_bank_copies[r] = manager.dict()
+        for user, data in bank.items():
+            replica_bank_copies[r][user] = manager.dict()
+            for k, v in data.items():
+                replica_bank_copies[r][user][k] = v
+
+    all_machine_names = [client_name] + replica_names
+    machine_queues = {}
+    for a in range(len(all_machine_names)):
+        a_machine_name = all_machine_names[a]
+        curr_queue_to_a = mp.Queue()
+        curr_queue_to_a_from_main = mp.Queue()
+        machine_queues[a_machine_name] = {
+            "to_machine": curr_queue_to_a,
+            "from_main": curr_queue_to_a_from_main
+        }
+
+    # spawn client and replica processes
+    t_queue = mp.Queue()
+    m_queue = mp.Queue()
+    client = mp.Process(name = client_name, target = client_proc, args = (client_name, transactions, machine_queues, t_queue, m_queue, visible_log, frontend_log, num_replicas, f, g ))
+    replicas = [mp.Process(name = r_name, target = replica_proc, args = (r_name, client_name, machine_queues, r_name in byz_replica_names, t_queue, m_queue, visible_log, frontend_log, replica_logs, replica_bank_copies, f, g )) for r_name in replica_names]
+
+    client.start()
+    for r in replicas:
+        r.start()
+
+    # iteratively execute all transactions
+    curr_view = 0
+    p = 0
+    for t in range(len(transactions)):
+        transaction_status = True
+        print(t, transactions[t], "main value")
+        while transaction_status:
+            visible_log.append("Transaction {} {}".format(t, transactions[t]))
+
+            # visible_log.append("PRIMARY ELECTION")
+            print("PRIMARY ELECTION")
+                
+            # elect primary
+            p_index = curr_view % num_replicas
+            primary_name = replica_names[p_index]
+            # visible_log.append("Primary selected {}".format(p_index))
+            print("Primary selected {}".format(p_index))
+
+            # send primary index, name, current view, and transaction to client
+            print("sending", (p_index, primary_name, transactions[t], curr_view, p))
+            t_queue.put((p_index, primary_name, transactions[t], curr_view, p))
+
+            # replica inform done
+            visible_log.append(m_queue.get())
+
+            clear_all_queues(machine_queues.values())
+            clear(m_queue)
+
+            visible_log.append("PRE-PREPARE PHASE")
             
-        # elect primary
-        p_index = curr_view % num_replicas
-        primary_name = replica_names[p_index]
-        # visible_log.append("Primary selected {}".format(p_index))
-        print("Primary selected {}".format(p_index))
+            for q_name, q in machine_queues.items():
+                q["from_main"].put("start pre-prepare phase")
 
-        # send primary index, name, current view, and transaction to client
-        print("sending", (p_index, primary_name, transactions[t], curr_view, p))
-        t_queue.put((p_index, primary_name, transactions[t], curr_view, p))
+            # pre-prepare phase done
+            print("before client response")
+            client_response = m_queue.get()
+            print("Client response", client_response)
+            if client_response == None:
+                continue
+            for i in range(num_replicas):
+                visible_log.append("Main {}".format(m_queue.get()))
 
-        # replica inform done
-        visible_log.append(m_queue.get())
+            clear_all_queues(machine_queues.values())
+            clear(m_queue)
 
-        clear_all_queues(machine_queues.values())
-        clear(m_queue)
+            visible_log.append("PREPARE PHASE")
+            
+            for q_name, q in machine_queues.items():
+                if q_name != client_name:
+                    q["from_main"].put("start prepare phase")
 
-        visible_log.append("PRE-PREPARE PHASE")
-        
-        for q_name, q in machine_queues.items():
-            q["from_main"].put("start pre-prepare phase")
+            # prepare phase done
+            for i in range(num_replicas):
+                visible_log.append("Main {}".format(m_queue.get()))
 
-        # pre-prepare phase done
-        print("before client response")
-        client_response = m_queue.get()
-        print("Client response", client_response)
-        if client_response == None:
-            continue
-        for i in range(num_replicas):
-            visible_log.append("Main {}".format(m_queue.get()))
+            clear_all_queues(machine_queues.values())
+            clear(m_queue)
 
-        clear_all_queues(machine_queues.values())
-        clear(m_queue)
+            visible_log.append("COMMIT PHASE")
+            
+            for q_name, q in machine_queues.items():
+                if q_name != client_name:
+                    q["from_main"].put("start commit phase")
 
-        visible_log.append("PREPARE PHASE")
-        
-        for q_name, q in machine_queues.items():
-            if q_name != client_name:
-                q["from_main"].put("start prepare phase")
+            # commit phase done
+            for i in range(num_replicas):
+                visible_log.append("Main {}".format(m_queue.get()))
 
-        # prepare phase done
-        for i in range(num_replicas):
-            visible_log.append("Main {}".format(m_queue.get()))
+            clear_all_queues(machine_queues.values())
+            clear(m_queue)
 
-        clear_all_queues(machine_queues.values())
-        clear(m_queue)
+            visible_log.append("INFORM CLIENT")
+            
+            for q_name, q in machine_queues.items():
+                if q_name != client_name:
+                    q["from_main"].put("send inform messages")
 
-        visible_log.append("COMMIT PHASE")
-        
-        for q_name, q in machine_queues.items():
-            if q_name != client_name:
-                q["from_main"].put("start commit phase")
+            # inform client done: client sends a message to move to the next transaction
+            inform_client_status = m_queue.get()
+            print("inform client done", inform_client_status)
+            visible_log.append("Main {}".format(inform_client_status))
 
-        # commit phase done
-        for i in range(num_replicas):
-            visible_log.append("Main {}".format(m_queue.get()))
+            clear_all_queues(machine_queues.values())
+            clear(m_queue)
+            clear(t_queue)
 
-        clear_all_queues(machine_queues.values())
-        clear(m_queue)
+            print("cleared queues")
 
-        visible_log.append("INFORM CLIENT")
-        
-        for q_name, q in machine_queues.items():
-            if q_name != client_name:
-                q["from_main"].put("send inform messages")
+            p += 1
+            curr_view += 1
+            transaction_status = False
 
-        # inform client done: client sends a message to move to the next transaction
-        inform_client_status = m_queue.get()
-        print("inform client done", inform_client_status)
-        visible_log.append("Main {}".format(inform_client_status))
+            print("Move to next transaction in loop")
+            
+            # time.sleep(5) # artificial latency to view text output between transactions
 
-        clear_all_queues(machine_queues.values())
-        clear(m_queue)
-        clear(t_queue)
+    # terminate all subprocesses
+    client.terminate()
+    for r in replicas:
+        r.terminate()
 
-        print("cleared queues")
+    # states of replica banks
+    for r_name, bank_copy in replica_bank_copies.items():
+        print(r_name, json.dumps(bank_copy, cls=JSONEncoderWithDictProxy))
 
-        p += 1
-        curr_view += 1
-        transaction_status = False
+    frontend_log = list(frontend_log)
+    type_data = list(map(lambda x: "" if "Type" not in x else x["Type"], frontend_log))
+    sender_data = list(map(lambda x: "" if "Sender" not in x else x["Sender"], frontend_log))
+    recipient_data = list(map(lambda x: "" if "Recipient" not in x else x["Recipient"], frontend_log))
+    transaction_data = list(map(lambda x: "" if "Transaction" not in x else x["Transaction"], frontend_log))
+    message_data = list(map(lambda x: "" if "Message" not in x else x["Message"], frontend_log))
+    view_data = list(map(lambda x: "" if "View" not in x else x["View"], frontend_log))
+    num_transaction_data = list(map(lambda x: "" if "Num_transaction" not in x else x["Num_transaction"], frontend_log))
+    result_data = list(map(lambda x: "" if "Result" not in x else x["Result"], frontend_log))
 
-        print("Move to next transaction in loop")
-        
-        # time.sleep(5) # artificial latency to view text output between transactions
+    frontend_log_data = pd.DataFrame({
+        "Type": type_data,
+        "Sender": sender_data,
+        "Recipient": recipient_data,
+        "Transaction": transaction_data,
+        "Message": message_data,
+        "View": view_data,
+        "Num_transaction": num_transaction_data,
+        "Result": result_data,
+        })
 
-# terminate all subprocesses
-client.terminate()
-for r in replicas:
-    r.terminate()
-
-# # print the visible log
-# for i in visible_log:
-#     print(i)
-
-# print()
-
-# # print the logs of each replica
-# for r in replica_names:
-#     print(r, "log")
-#     for log_entry in replica_logs[r]:
-#         print(log_entry)
-#     print()
-
-# states of replica banks
-for r_name, bank_copy in replica_bank_copies.items():
-    print(r_name, json.dumps(bank_copy, cls=JSONEncoderWithDictProxy))
-
-frontend_log = list(frontend_log)
-type_data = list(map(lambda x: "" if "Type" not in x else x["Type"], frontend_log))
-sender_data = list(map(lambda x: "" if "Sender" not in x else x["Sender"], frontend_log))
-recipient_data = list(map(lambda x: "" if "Recipient" not in x else x["Recipient"], frontend_log))
-transaction_data = list(map(lambda x: "" if "Transaction" not in x else x["Transaction"], frontend_log))
-message_data = list(map(lambda x: "" if "Message" not in x else x["Message"], frontend_log))
-view_data = list(map(lambda x: "" if "View" not in x else x["View"], frontend_log))
-num_transaction_data = list(map(lambda x: "" if "Num_transaction" not in x else x["Num_transaction"], frontend_log))
-result_data = list(map(lambda x: "" if "Result" not in x else x["Result"], frontend_log))
-
-frontend_log_data = pd.DataFrame({
-    "Type": type_data,
-    "Sender": sender_data,
-    "Recipient": recipient_data,
-    "Transaction": transaction_data,
-    "Message": message_data,
-    "View": view_data,
-    "Num_transaction": num_transaction_data,
-    "Result": result_data,
-    })
-
-frontend_log_data.to_csv("../frontend/display/frontend_log.csv")
+    # frontend_log_data.to_csv("./static/display/frontend_log.csv")
+    return frontend_log_data

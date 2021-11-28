@@ -1,4 +1,4 @@
-from message_generator import generate_preprepare_msg
+from simulation.message_generator import generate_preprepare_msg
 
 ## PRIMARY FUNCTIONS
 def send_preprepare(to_curr_replica, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, byz_status, visible_log, frontend_log):

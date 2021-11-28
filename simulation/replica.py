@@ -1,4 +1,4 @@
-from message_generator import generate_prepare_msg, generate_commit_msg, generate_inform_msg, generate_view_change_msg, generate_new_view_msg
+from simulation.message_generator import generate_prepare_msg, generate_commit_msg, generate_inform_msg, generate_view_change_msg, generate_new_view_msg
 
 ## REPLICA FUNCTIONS
 def send_view_change(queues, r_name, client_name, frontend_log):

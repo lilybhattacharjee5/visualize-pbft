@@ -3,6 +3,28 @@ function onload(data) {
     generateForceGraph(data);
 }
 
+$('#submitButton').on('click', function() {
+    console.log($('#num_replicas').text);
+    $.ajax({
+        url: '/restart_pbft',
+        type: 'GET',
+        dataType: 'json',
+        success: function() { 
+        },
+        error: function(e) { 
+        },
+        beforeSend: setHeader
+    });
+});
+
+function setHeader(xhr) {
+    let num_replicas = document.getElementById('num_replicas').value;
+    let num_byzantine = document.getElementById('num_byzantine').value;
+    
+    xhr.setRequestHeader('num_replicas', num_replicas);
+    xhr.setRequestHeader("num_byzantine", num_byzantine);
+}
+
 // create the force directed graph
 function generateGraphData(data) {
     let names = [];

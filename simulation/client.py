@@ -1,4 +1,4 @@
-from message_generator import generate_transaction_msg
+from simulation.message_generator import generate_transaction_msg
 
 ## CLIENT FUNCTIONS
 def send_transaction(queues, client_name, primary_name, curr_transaction, curr_view, p):

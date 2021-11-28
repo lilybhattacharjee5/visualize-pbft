@@ -374,5 +374,3 @@ frontend_log_data = pd.DataFrame({
     })
 
 frontend_log_data.to_csv("../frontend/display/frontend_log.csv")
-
-# sys.stdout.close()

@@ -31,11 +31,13 @@ function generateGraphData(data) {
     for (const elem of data) {
         let sender = name_id_mapper[elem["Sender"]];
         let recipient = name_id_mapper[elem["Recipient"]];
+        let type = elem["Type"];
 
         links.push({
             "source": sender,
             "target": recipient,
             "value": 1,
+            "type": type,
         })
     }
 
@@ -64,6 +66,25 @@ function displayLog(data) {
     log.innerHTML = displayHTML;
 }
 
+function findCurrLinks(sequentialLinks, i) {
+    let visibleLinks = [];
+    let currLink = sequentialLinks[i];
+    let startPhase = currLink["type"];
+    let currPhase = startPhase;
+    while (currPhase === startPhase) {
+        if (i >= sequentialLinks.length) {
+            break;
+        }
+        currLink = sequentialLinks[i++]
+        currPhase = currLink["type"];
+        if (currPhase !== startPhase) {
+            break;
+        }
+        visibleLinks.push(currLink);
+    }
+    return visibleLinks;
+}
+
 function generateForceGraph(data) {
     let width = 640;
     let height = 400;
@@ -72,7 +93,7 @@ function generateForceGraph(data) {
     let graphData = generateGraphData(data);
     let nodes = graphData["nodes"];
     let sequentialLinks = graphData["links"]
-    let visibleLinks = [sequentialLinks[idx]];
+    let visibleLinks = findCurrLinks(sequentialLinks, idx);
 
     const forceNode = d3.forceManyBody();
     const forceLink = d3.forceLink(visibleLinks).strength(0);
@@ -148,16 +169,17 @@ function generateForceGraph(data) {
     }
 
     function update() {
-        idx++;
+        idx += visibleLinks.length;
         if (idx >= sequentialLinks.length) {
             return;
         }
 
-        visibleLinks = [sequentialLinks[idx]];
+        visibleLinks = findCurrLinks(sequentialLinks, idx);
 
         link = link
             .data(visibleLinks)
-            .join("line");
+            .join("path")
+            .attr("marker-end","url(#end-arrow)");
 
         simulation.force("link").links(visibleLinks);
         simulation.restart();

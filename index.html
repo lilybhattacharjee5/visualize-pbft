@@ -6,12 +6,13 @@
     </head>
     </head>
     <body>
-        <script src = "https://d3js.org/d3.v7.min.js"></script>
-        <script type = "text/javascript" src = "./frontend/index.js"></script>
+        <script src = "https://d3js.org/d3.v6.min.js"></script>
         <div id = "container">
             <h1>Visualize PBFT</h1>
             <div id = "window">
-                <div id = "visualization" class = "window-item"></div>
+                <div id = "visualization" class = "window-item">
+                    <button type = "button" id = "nextButton">Next</button>
+                </div>
                 <div id = "log" class = "window-item"></div>
             </div>
             <div id = "options">
@@ -26,9 +27,10 @@
                     </select>
                 </div>
                 <div class = "form-item">
-                    <input type = "submit" />
+                    <input id = "submitButton" type = "submit" />
                 </div>
             </div>
         </div>
     </body>
+    <script type = "text/javascript" src = "./frontend/index.js"></script>
 </html>

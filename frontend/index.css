@@ -9,8 +9,18 @@
     height: 30em;
 }
 
-.window-item {
-    flex: 1 1 0px;
+#visualization {
+    width: 45%;
+}
+
+#log {
+    padding-left: 2em;
+    flex: 0.9;
+    overflow-y: auto;
+}
+
+#nextButton {
+    float: right;
 }
 
 .form-item {

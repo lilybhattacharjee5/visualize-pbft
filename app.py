@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, request, render_template, redirect, url_for, session
+from flask import Flask, request, render_template, redirect, url_for, session, jsonify
 import pandas as pd
 from simulation.simulator import run_simulation
 import configparser
@@ -65,39 +65,17 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
         })
     return data_lst
 
-@app.route("/")
+@app.route("/", methods = ["POST", "GET"])
 def show_all():
-    try:
-        messages = session['messages']
-
-        if "num_replicas" in messages and "num_byzantine" in messages and "num_transactions" in messages:
-            num_replicas = messages["num_replicas"]
-            num_byzantine = messages["num_byzantine"]
-            num_transactions = messages["num_transactions"]
-        else:
-            num_replicas = default_num_replicas
-            num_byzantine = default_num_byzantine
-            num_transactions = default_num_transactions
-
-        session["messages"] = {}
-    except:
+    if request.method == "POST":
+        data = request.form
+        num_replicas = int(data.get('num_replicas'))
+        num_byzantine = int(data.get('num_byzantine'))
+        num_transactions = int(data.get('num_transactions'))
+    else:
         num_replicas = default_num_replicas
         num_byzantine = default_num_byzantine
         num_transactions = default_num_transactions
 
     data_lst = sim(num_replicas = num_replicas, num_byzantine = num_byzantine, num_transactions = num_transactions)
     return render_template("index.html", data = data_lst)
-
-@app.route('/restart_pbft', methods = ['POST', 'GET'])
-def restart_pbft():
-    num_replicas = int(request.headers['Num_replicas'])
-    num_byzantine = int(request.headers['Num_byzantine'])
-    num_transactions = int(request.headers['Num_transactions'])
-    
-    session['messages'] = {
-        "num_replicas": num_replicas,
-        "num_byzantine": num_byzantine,
-        "num_transactions": num_transactions,
-    }
-
-    return redirect(request.referrer)

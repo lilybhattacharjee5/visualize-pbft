@@ -3,29 +3,57 @@ function onload(data) {
     generateForceGraph(data);
 }
 
-$('#submitButton').on('click', function() {
-    console.log($('#num_replicas').text);
-    $.ajax({
-        url: '/restart_pbft',
-        type: 'GET',
-        dataType: 'json',
-        success: function() { 
-        },
-        error: function(e) { 
-        },
-        beforeSend: setHeader
-    });
-});
+function validate_inputs(num_replicas_val, num_byzantine_val, num_transactions_val) {
+    if (isNaN(num_replicas_val) || isNaN(num_byzantine_val) || isNaN(num_transactions_val)) {
+        console.log("here1");
+        return false;
+    }
 
-function setHeader(xhr) {
+    let num_replicas = parseInt(num_replicas_val);
+    let num_byzantine = parseInt(num_byzantine_val);
+    let num_transactions = parseInt(num_transactions_val);
+
+    if (!(num_replicas > 1) || !(num_replicas <= 10)) {
+        console.log("here2");
+        return false;
+    }
+
+    if (!(num_byzantine >= 0) || !(num_byzantine <= 10)) {
+        console.log("here3");
+        return false;
+    }
+
+    if (!(num_transactions > 0) || !(num_transactions <= 10)) {
+        console.log("here4");
+        return false;
+    }
+
+    return true;
+}
+
+$('#submitButton').on('click', function() {
+    // validate inputs, else ask user to re-enter
     let num_replicas = document.getElementById('num_replicas').value;
     let num_byzantine = document.getElementById('num_byzantine').value;
     let num_transactions = document.getElementById('num_transactions').value;
+
+    let errors = document.getElementById('errors');
+
+    let validate_result = validate_inputs(num_replicas, num_byzantine, num_transactions);
+
+    console.log(validate_result);
     
-    xhr.setRequestHeader("num_replicas", num_replicas);
-    xhr.setRequestHeader("num_byzantine", num_byzantine);
-    xhr.setRequestHeader("num_transactions", num_transactions);
-}
+    if (validate_result) {
+        errors.innerHTML = ""
+
+        $("#options").submit();
+        $('#options').get(0).reset();
+
+    } else {
+        // set error div text
+        errors.innerHTML = "One / more parameters is invalid. Please check that 1 < num_replicas <= 10, 0 <= num_byzantine <= 10, 0 < num_transactions <= 10."
+    }
+});
 
 // create the force directed graph
 function generateGraphData(data) {

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
     <head>
-        <title>Visualize PBFT</title>
+        <title>Visualize pBFT</title>
         <link rel = "stylesheet" type = "text/css" href = "{{ url_for('static', filename = 'sb-admin-2.min.css') }}" />
         <link rel = "stylesheet" type = "text/css" href = "{{ url_for('static', filename = 'index.css') }}" />
         <script src = "https://d3js.org/d3.v6.min.js"></script>
@@ -9,14 +9,14 @@
     </head>
     <body>
         <div id = "container">
-            <h1>Visualize PBFT</h1>
+            <h1>Visualize pBFT</h1>
             <div id = "window">
                 <div id = "visualization" class = "window-item">
                     <button type = "button" id = "nextButton">Next</button>
                 </div>
                 <div id = "log" class = "window-item"></div>
             </div>
-            <div id = "options">
+            <form id = "options" method = "post" action = "/" enctype = "application/json">
                 <div class = "form-item">Number of replicas: <input type = "text" name = "num_replicas" id = "num_replicas" /><br /></div>
                 <div class = "form-item">Number of Byzantine replicas: <input type = "text" name = "num_byzantine" id = "num_byzantine" /><br /></div>
                 <div class = "form-item">Number of transactions: <input type = "text" name = "num_transactions" id = "num_transactions" /><br /></div>
@@ -28,8 +28,9 @@
                     </select>
                 </div>
                 <div class = "form-item">
-                    <a href="/"><input id = "submitButton" type = "submit" /></a>
+                    <input type = "button" id = "submitButton" value = "Submit" />
                 </div>
+                <div id = "errors"></div>
             </div>
         </div>
     </body>

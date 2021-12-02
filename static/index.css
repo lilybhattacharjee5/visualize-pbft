@@ -26,3 +26,7 @@
 .form-item {
     padding: 0.15em;
 }
+
+#errors {
+    color: red;
+}

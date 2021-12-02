@@ -159,7 +159,7 @@ def replica_proc(r_name, client_name, queues, byz_status, t_queue, m_queue, visi
 
         send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, result, visible_log, frontend_log) # all replicas send an inform message to the client  
 
-def run_simulation(num_replicas, num_byzantine):
+def run_simulation(num_replicas, num_byzantine, num_transactions):
     manager = mp.Manager()
     visible_log = manager.list()
     frontend_log = manager.list()
@@ -187,7 +187,8 @@ def run_simulation(num_replicas, num_byzantine):
     #     ["Elisa", "Ana", 1],
     #     ["Elisa", "Ana", 1]
     # ]
-    transactions = [["Ana", "Elisa", 400] for i in range(1)] #20
+    transactions = [["Ana", "Elisa", 400] for i in range(num_transactions)] #20
+    print("Transactions", transactions)
 
     # select the random byzantine replicas
     print("num byzantine", num_byzantine)

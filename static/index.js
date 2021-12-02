@@ -20,9 +20,11 @@ $('#submitButton').on('click', function() {
 function setHeader(xhr) {
     let num_replicas = document.getElementById('num_replicas').value;
     let num_byzantine = document.getElementById('num_byzantine').value;
+    let num_transactions = document.getElementById('num_transactions').value;
     
-    xhr.setRequestHeader('num_replicas', num_replicas);
+    xhr.setRequestHeader("num_replicas", num_replicas);
     xhr.setRequestHeader("num_byzantine", num_byzantine);
+    xhr.setRequestHeader("num_transactions", num_transactions);
 }
 
 // create the force directed graph

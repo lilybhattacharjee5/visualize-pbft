@@ -1,8 +1,6 @@
 <!DOCTYPE html>
     <head>
         <title>Visualize PBFT</title>
-        <!-- <link rel = "stylesheet" type = "text/css" href = "frontend/sb-admin-2.min.css" />
-        <link rel = "stylesheet" type = "text/css" href = "frontend/index.css" /> -->
         <link rel = "stylesheet" type = "text/css" href = "{{ url_for('static', filename = 'sb-admin-2.min.css') }}" />
         <link rel = "stylesheet" type = "text/css" href = "{{ url_for('static', filename = 'index.css') }}" />
         <script src = "https://d3js.org/d3.v6.min.js"></script>
@@ -21,7 +19,7 @@
             <div id = "options">
                 <div class = "form-item">Number of replicas: <input type = "text" name = "num_replicas" id = "num_replicas" /><br /></div>
                 <div class = "form-item">Number of Byzantine replicas: <input type = "text" name = "num_byzantine" id = "num_byzantine" /><br /></div>
-                <div class = "form-item">Number of transactions: <input type = "text" /><br /></div>
+                <div class = "form-item">Number of transactions: <input type = "text" name = "num_transactions" id = "num_transactions" /><br /></div>
                 <div class = "form-item">
                     <label for = "byz-behave">Type of Byzantine behavior:</label>
                     <select id = "byz-behave" name = "byz-behave">

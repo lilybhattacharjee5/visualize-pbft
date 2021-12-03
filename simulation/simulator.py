@@ -149,7 +149,7 @@ def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_st
             m = send_preprepare(to_curr_replica, r_signing_key, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, byz_status, visible_log, frontend_log, r_signing_key)
         else:
             # replicas receive pre-prepare message
-            m = recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys)
+            m = recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys, byz_status)
             if m == None:
                 print("{} exit prematurely, restart the transaction".format(r_name))
                 continue

@@ -81,7 +81,7 @@ def recv_new_view(r_name, to_curr_replica):
             received = True
             print("{} received new view".format(r_name))
 
-def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys):
+def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys, byz_status):
     received = False
     counter = 0
     detected_failure = False
@@ -89,6 +89,12 @@ def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, vi
         try:
             queue_elem = to_curr_replica["to_machine"].get(timeout = 1)
             if len(queue_elem) == 1 and queue_elem[0]["Type"] == "Pre-prepare":
+                # if replica is byzantine, keep spamming view change requests (even if primary is good)
+                if byz_status == "bad_view_change_requests":
+                    print("spammed request: {} has detected primary failure".format(r_name))
+                    send_view_change(queues, r_name, client_name, frontend_log)
+                    break
+                
                 # verify that transaction is signed by client
                 probable_transaction = queue_elem[0]["Transaction"]
                 if not verify_signature(probable_transaction, verify_keys[client_name]):

@@ -7,13 +7,13 @@ def byz_replica_send_prepare(byz_status):
     if byz_status == "no_response":
         return 
     else:
-        return
+        return # none of the other byzantine behaviors are related to the replica's prepare phase
 
 def byz_replica_send_commit(byz_status):
     if byz_status == "no_response":
         return 
     else:
-        return
+        return # none of the other byzantine behaviors are related to the replica's commit phase
 
 def byz_replica_send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, r, visible_log, frontend_log):
     if byz_status == "no_response":
@@ -30,7 +30,7 @@ def byz_replica_send_inform(to_client, client_name, r_name, byz_status, curr_tra
         frontend_log.append(clean_inform_msg)
         visible_log.append("{} has sent inform message to client".format(r_name))
     else:
-        return 
+        return # none of the other byzantine behaviors are related to the replica's inform phase
 
 def byz_replica_recv_prepare(byz_status):
     return
@@ -47,24 +47,6 @@ def send_view_change(queues, r_name, client_name, frontend_log):
             view_change_msg = generate_view_change_msg(r_name, q_name)
             q["to_machine"].put([view_change_msg])
             frontend_log.append(view_change_msg)
-
-# def recv_view_change(r_name, to_curr_replica):
-#     ## CHANGE THIS -- should be integrated into all while loops i.e. replicas should always be searching for view change messages
-#     # receive at least f + 1 viewchange(e_i, v_i) messages
-#     # detects failure in current view v
-#     sender_count = 0
-#     senders = {}
-#     while sender_count < f + 1:
-#         received = False 
-#         while not received:
-#             queue_elem = to_curr_replica["to_machine"].get()
-#             if len(queue_elem) == 1 and queue_elem[0]["Type"] == "View change":
-#                 received = True 
-#                 curr_sender = queue_elem[0]["Sender"]
-#                 if curr_sender not in senders:
-#                     sender_count += 1
-#                     senders[curr_sender] = True
-#     print("{} received f + 1 view change".format(r_name))
 
 def send_new_view(queues, r_name, client_name, to_curr_replica, curr_view, g, frontend_log):
     # used by replica p' = (v + 1) mod n to become the new primary

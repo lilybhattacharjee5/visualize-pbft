@@ -35,7 +35,7 @@ def recv_inform(to_client, f, visible_log):
                         sender_counts[curr_result] += 1
                     senders[curr_sender] = True
 
-                if sender_counts[curr_result] >= f + 1:
+                if curr_result in sender_counts and sender_counts[curr_result] >= f + 1:
                     print("sender counts", sender_counts)
                     return True    
             

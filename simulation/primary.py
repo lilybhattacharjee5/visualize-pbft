@@ -16,15 +16,12 @@ def byz_primary(byz_status, r_signing_key, to_curr_replica, queues, client_name,
                 clean_prep_msg["Transaction"] = str(clean_prep_msg["Transaction"].message)
                 frontend_log.append(clean_prep_msg)
                 q["to_machine"].put([prep_msg])
-        # m_queue.put(r_name + " pre-prepare phase done")
-        # visible_log.append("primary has sent the pre-prepare messages")
-        # visible_log.append(to_curr_replica["from_main"].get())
     else:
         return # none of the other byzantine behaviors are related to the primary's preprepare phase
 
 ## PRIMARY FUNCTIONS
 def send_preprepare(to_curr_replica, r_signing_key, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, byz_status, visible_log, frontend_log, primary_signing_key):
-    if byz_status:
+    if byz_status in ["no_response", "fake_client_transactions"]:
         m_queue.put(None)
         byz_primary(byz_status, r_signing_key, to_curr_replica, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, visible_log, frontend_log)
     else:

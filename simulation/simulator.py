@@ -89,7 +89,6 @@ def client_proc(client_name, client_signing_key, verify_keys, transactions, queu
                 p_index += 1
                 p_index = p_index % num_replicas
                 primary_name = "Replica_{}".format(p_index)
-                print("NEW PRIMARY!!!!!!!!", primary_name)
                 print("Client", failure_status)
                 m_queue.put(None)
                 continue

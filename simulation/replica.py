@@ -15,11 +15,20 @@ def byz_replica_send_commit(byz_status):
     else:
         return
 
-def byz_replica_send_inform(byz_status):
+def byz_replica_send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, r, visible_log, frontend_log):
     if byz_status == "no_response":
         return 
     elif byz_status == "bad_transaction_results":
-        return # TODO
+        bad_result = {
+            "Ana": 14,
+            "Bob": 20
+        }
+        inform_msg = generate_inform_msg(r_name, client_name, curr_transaction, p, bad_result)
+        to_client.put([inform_msg])
+        clean_inform_msg = copy.deepcopy(inform_msg)
+        clean_inform_msg["Transaction"] = str(clean_inform_msg["Transaction"].message)
+        frontend_log.append(clean_inform_msg)
+        visible_log.append("{} has sent inform message to client".format(r_name))
     else:
         return 
 
@@ -225,7 +234,7 @@ def recv_commit(to_curr_replica, r_name, m_queue, byz_status, m, g, visible_log,
 
 def send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, r, visible_log, frontend_log):
     if byz_status:
-        byz_replica_send_inform(byz_status)
+        byz_replica_send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, r, visible_log, frontend_log)
     else:
         inform_msg = generate_inform_msg(r_name, client_name, curr_transaction, p, r)
         to_client.put([inform_msg])

@@ -18,18 +18,27 @@ def replica_ack_primary(to_client, num_replicas, m_queue):
 
 def recv_inform(to_client, f, visible_log):
     # gather inform messages from f + 1 distinct senders
-    sender_count = 0
+    sender_counts = {}
     senders = {}
-    while sender_count < f + 1:
+    while True:
         received = False
         while not received:
             queue_elem = to_client["to_machine"].get()
             if len(queue_elem) == 1 and type(queue_elem[0]) == dict and queue_elem[0]["Type"] == "Inform":
                 received = True 
                 curr_sender = queue_elem[0]["Sender"]
+                curr_result = str(queue_elem[0]["Result"])
                 if curr_sender not in senders:
-                    sender_count += 1
+                    if curr_result not in sender_counts:
+                        sender_counts[curr_result] = 1
+                    else:
+                        sender_counts[curr_result] += 1
                     senders[curr_sender] = True
+
+                if sender_counts[curr_result] >= f + 1:
+                    print("sender counts", sender_counts)
+                    return True    
+            
             # detected failure in pre-prepare stage -- resend transaction
             elif len(queue_elem) == 1 and type(queue_elem[0]) == dict and queue_elem[0]["Type"] == "New view":
                 print("detected failure received by client")

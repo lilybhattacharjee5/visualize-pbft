@@ -6,10 +6,12 @@ from datetime import datetime, date
 import sys
 import json
 import copy
+import ast
 from simulation.client import send_transaction, replica_ack_primary, recv_inform
 from simulation.replica import send_view_change, send_new_view, recv_new_view, recv_preprepare, send_prepare, recv_prepare, send_commit, recv_commit, send_inform 
 from simulation.primary import send_preprepare
 from simulation.message_generator import generate_new_view_msg
+from simulation.utils import verify_signature
 from nacl.signing import SigningKey, VerifyKey
 
 # mp = multiprocessing.get_context('spawn')
@@ -46,7 +48,9 @@ def clear_all_queues(q_list):
 
 ## TRANSACTION EXECUTION (TEMPORARY)
 def execute_transaction(curr_transaction, r_name, replica_bank_copies):
-    sender, receiver, amt = curr_transaction 
+    print("transaction", curr_transaction)
+
+    sender, receiver, amt = ast.literal_eval(curr_transaction.message.decode("utf-8"))
     # does sender have at least amt to transfer?
     replica_bank = replica_bank_copies[r_name]
     if replica_bank[sender]["Balance"] >= amt:
@@ -71,7 +75,7 @@ def client_proc(client_name, client_signing_key, verify_keys, transactions, queu
         curr_transaction_status = True
         while curr_transaction_status:
             # client sends transaction to the primary of the current view
-            print("Client sending transaction", curr_transaction)
+            print("Client sending transaction", curr_transaction, primary_name)
             send_transaction(queues, client_name, primary_name, curr_transaction, curr_view, p, client_signing_key)
 
             # wait for all replicas to acknowledge that primary has been informed
@@ -83,7 +87,9 @@ def client_proc(client_name, client_signing_key, verify_keys, transactions, queu
             if failure_status == None:
                 curr_view += 1
                 p_index += 1
+                p_index = p_index % num_replicas
                 primary_name = "Replica_{}".format(p_index)
+                print("NEW PRIMARY!!!!!!!!", primary_name)
                 print("Client", failure_status)
                 m_queue.put(None)
                 continue
@@ -92,13 +98,6 @@ def client_proc(client_name, client_signing_key, verify_keys, transactions, queu
         print("client moving to next transaction")
         m_queue.put("move to the next transaction")
         print("put into mqueue")
-
-def verify_signature(signed_msg, verify_key):
-    try:
-        verify_key.verify(signed_msg)
-        return True
-    except:
-        return False
 
 def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_status, t_queue, m_queue, visible_log, frontend_log, replica_logs, replica_bank_copies, f, g, good_replicas):
     to_client = queues[client_name]["to_machine"]
@@ -111,20 +110,18 @@ def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_st
         received = False
         while not received:
             queue_elem = to_curr_replica["to_machine"].get()
+            print("queue elem", queue_elem)
 
             if len(queue_elem) > 1:
-                # verify that the signature is from client / that the msg hasn't been tampered with
                 if queue_elem[0] == None:
                     transaction_msg = None
                     break 
 
-                if not verify_signature(queue_elem[0], verify_keys[client_name]):
+                # verify that the signature is from client / that the msg hasn't been tampered with
+                transaction_msg = queue_elem[0]
+                probable_transaction = transaction_msg["Transaction"]
+                if not verify_signature(probable_transaction, verify_keys[client_name]):
                     continue
-
-                print(queue_elem[0])
-
-                transaction_msg = json.loads(queue_elem[0].message.decode("utf-8").replace("'", "\""))
-                print(transaction_msg)
 
                 if transaction_msg == None or transaction_msg["Type"] == "Transaction":
                     received = True 
@@ -143,18 +140,17 @@ def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_st
         visible_log.append("primary status {} {}".format(mp.current_process().name, primary_status))
 
         # send signal to client that primary has been informed
-        print("before signal")
         to_client.put([primary_status])
+        print("before primary informed")
         primary_informed = to_curr_replica["from_main"].get()
-        print("Primary informed", primary_informed)
         visible_log.append(primary_informed)
 
         if primary_status:
             # primary broadcasts pre-prepare message to all other replicas
-            m = send_preprepare(to_curr_replica, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, byz_status, visible_log, frontend_log)
+            m = send_preprepare(to_curr_replica, r_signing_key, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, byz_status, visible_log, frontend_log, r_signing_key)
         else:
             # replicas receive pre-prepare message
-            m = recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas)
+            m = recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys)
             if m == None:
                 print("{} exit prematurely, restart the transaction".format(r_name))
                 continue
@@ -184,6 +180,7 @@ def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_st
         print("Executing transaction {} {}".format(curr_transaction, r_name))
         result = execute_transaction(curr_transaction, r_name, replica_bank_copies)
 
+        print(r_name, "sending inform")
         send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, result, visible_log, frontend_log) # all replicas send an inform message to the client  
 
 def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave):
@@ -219,7 +216,18 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave):
 
     # select the random byzantine replicas
     print("num byzantine", num_byzantine)
-    byz_idxes = np.random.choice(np.arange(0, num_replicas), num_byzantine, replace = False)
+    all_byz = [
+        [[], [1], [0, 1]], # 2
+        [[], [1], [0, 1], [0, 1, 2]], # 3
+        [[], [2], [0, 2], [0, 2, 3], [0, 1, 2, 3]], # 4
+        [[], [3], [0, 2], [0, 2, 3], [0, 2, 3, 4], [0, 1, 2, 3, 4]], # 5
+        [[], [4], [0, 3], [1, 3, 5], [1, 2, 3, 5], [0, 1, 3, 5], [0, 1, 2, 3, 4, 5]], # 6
+        [[], [6], [2, 4], [1, 3, 5], [1, 2, 3, 5], [0, 1, 3, 5], [0, 1, 2, 3, 4, 5], [0, 1, 2, 3, 4, 5, 6]], # 7
+        [[], [5], [1, 3], [0, 2, 3], [0, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6, 7]], # 8
+        [[], [4], [2, 6], [0, 2, 3], [0, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6, 7], [0, 1, 2, 3, 4, 5, 6, 7, 8]], # 9
+        [[], [7], [7, 9], [1, 7, 9], [0, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6, 7], [0, 1, 2, 3, 4, 5, 6, 7, 8], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]], # 10
+    ]
+    byz_idxes = all_byz[num_replicas - 2][num_byzantine]
     print("Byzantine replicas", byz_idxes)
 
     # calculations based on inputs
@@ -355,6 +363,7 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave):
             
             for q_name, q in machine_queues.items():
                 if q_name != client_name:
+                    print(q_name, "send inform message")
                     q["from_main"].put("send inform messages")
 
             # inform client done: client sends a message to move to the next transaction
@@ -405,5 +414,4 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave):
         "Result": result_data,
         })
 
-    # frontend_log_data.to_csv("./static/display/frontend_log.csv")
     return frontend_log_data

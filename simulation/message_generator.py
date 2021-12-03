@@ -1,24 +1,24 @@
 def generate_transaction_msg(sender, recipient, curr_transaction, curr_view, p, client_signing_key):
-    msg = {
+    signed_msg = {
         "Type": "Transaction",
         "Sender": sender,
         "Recipient": recipient,
-        "Transaction": curr_transaction,
+        "Transaction": client_signing_key.sign(str.encode(str(curr_transaction))),
         "View": curr_view,
         "Num_transaction": p,
     }
-    signed_msg = client_signing_key.sign(str.encode('{}'.format(msg)))
     return signed_msg
 
-def generate_preprepare_msg(sender, recipient, curr_transaction, curr_view, p):
-    return {
+def generate_preprepare_msg(sender, recipient, curr_transaction, curr_view, p, primary_signing_key):
+    msg = {
         "Type": "Pre-prepare",
         "Sender": sender,
         "Recipient": recipient,
-        "Transaction": curr_transaction,
+        "Transaction": curr_transaction, # already signed by client
         "View": curr_view,
         "Num_transaction": p,
     }
+    return msg
 
 def generate_prepare_msg(sender, recipient, m):
     return {

@@ -1,4 +1,7 @@
 from simulation.message_generator import generate_prepare_msg, generate_commit_msg, generate_inform_msg, generate_view_change_msg, generate_new_view_msg
+from simulation.utils import verify_signature
+import ast
+import copy
 
 def byz_replica_send_prepare(byz_status):
     if byz_status == "no_response":
@@ -31,7 +34,7 @@ def send_view_change(queues, r_name, client_name, frontend_log):
     # stop the byzantine commit algorithm for view v 
     # broadcast viewchange(E, v) to all replicas [E = set of all requests m prepared by R]
     for q_name, q in queues.items():
-        if q_name != client_name:
+        if q_name != client_name and q_name != r_name:
             view_change_msg = generate_view_change_msg(r_name, q_name)
             q["to_machine"].put([view_change_msg])
             frontend_log.append(view_change_msg)
@@ -73,7 +76,7 @@ def send_new_view(queues, r_name, client_name, to_curr_replica, curr_view, g, fr
 
     # broadcast newview(v + 1, V, N) to all replicas
     for q_name, q in queues.items():
-        if q_name != client_name:
+        if q_name != client_name and q_name != r_name:
             new_view_msg = generate_new_view_msg(r_name, q_name, curr_view + 1)
             q["to_machine"].put([new_view_msg])
             frontend_log.append(new_view_msg)
@@ -82,12 +85,12 @@ def recv_new_view(r_name, to_curr_replica):
     received = False
     while not received:
         queue_elem = to_curr_replica["to_machine"].get()
-        print(r_name, "receiving", queue_elem)
+        print("inside recv new view", r_name, "receiving", queue_elem)
         if len(queue_elem) == 1 and queue_elem[0]["Type"] == "New view":
             received = True
             print("{} received new view".format(r_name))
 
-def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas):
+def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys):
     received = False
     counter = 0
     detected_failure = False
@@ -95,11 +98,18 @@ def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, vi
         try:
             queue_elem = to_curr_replica["to_machine"].get(timeout = 1)
             if len(queue_elem) == 1 and queue_elem[0]["Type"] == "Pre-prepare":
+                # verify that transaction is signed by client
+                probable_transaction = queue_elem[0]["Transaction"]
+                if not verify_signature(probable_transaction, verify_keys[client_name]):
+                    print("signature issue: {} has detected primary failure".format(r_name))
+                    send_view_change(queues, r_name, client_name, frontend_log)
+                    detected_failure = True
+                    break
+
                 received = True 
                 visible_log.append("{} {}".format(r_name, queue_elem))
                 visible_log.append("{} {}".format(r_name, "pre-prepare message received!"))
             else:
-                print("other message", queue_elem)
                 counter += 1
         except:
             counter += 1
@@ -110,8 +120,10 @@ def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, vi
                 break
 
     if detected_failure:
+        print(good_replicas)
         if r_name == good_replicas[0]: # this needs to be changed! "Replica_1"
             # send new view message
+            print("sending new view", r_name)
             send_new_view(queues, r_name, client_name, to_curr_replica, 0, g, frontend_log)
         else:
             # receive new view message
@@ -139,7 +151,9 @@ def send_prepare(queues, client_name, r_name, byz_status, m, visible_log, fronte
             if q_name != client_name and q_name != r_name:
                 prep_msg = generate_prepare_msg(r_name, q_name, m)
                 q["to_machine"].put([prep_msg])
-                frontend_log.append(prep_msg)
+                clean_prep_msg = copy.deepcopy(prep_msg)
+                clean_prep_msg["Message"]["Transaction"] = str(clean_prep_msg["Message"]["Transaction"].message.decode("utf-8"))
+                frontend_log.append(clean_prep_msg)
         visible_log.append("{} has sent prepare messages".format(r_name)) 
 
 def recv_prepare(to_curr_replica, r_name, m_queue, byz_status, g, visible_log):
@@ -215,5 +229,7 @@ def send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p,
     else:
         inform_msg = generate_inform_msg(r_name, client_name, curr_transaction, p, r)
         to_client.put([inform_msg])
-        frontend_log.append(inform_msg)
+        clean_inform_msg = copy.deepcopy(inform_msg)
+        clean_inform_msg["Transaction"] = str(clean_inform_msg["Transaction"].message)
+        frontend_log.append(clean_inform_msg)
         visible_log.append("{} has sent inform message to client".format(r_name))

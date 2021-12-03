@@ -1,5 +1,5 @@
-def generate_transaction_msg(sender, recipient, curr_transaction, curr_view, p):
-    return {
+def generate_transaction_msg(sender, recipient, curr_transaction, curr_view, p, client_signing_key):
+    msg = {
         "Type": "Transaction",
         "Sender": sender,
         "Recipient": recipient,
@@ -7,6 +7,8 @@ def generate_transaction_msg(sender, recipient, curr_transaction, curr_view, p):
         "View": curr_view,
         "Num_transaction": p,
     }
+    signed_msg = client_signing_key.sign(str.encode('{}'.format(msg)))
+    return signed_msg
 
 def generate_preprepare_msg(sender, recipient, curr_transaction, curr_view, p):
     return {

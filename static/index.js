@@ -3,9 +3,8 @@ function onload(data) {
     generateForceGraph(data);
 }
 
-function validate_inputs(num_replicas_val, num_byzantine_val, num_transactions_val) {
+function validate_inputs(num_replicas_val, num_byzantine_val, num_transactions_val, byz_behave) {
     if (isNaN(num_replicas_val) || isNaN(num_byzantine_val) || isNaN(num_transactions_val)) {
-        console.log("here1");
         return false;
     }
 
@@ -14,17 +13,18 @@ function validate_inputs(num_replicas_val, num_byzantine_val, num_transactions_v
     let num_transactions = parseInt(num_transactions_val);
 
     if (!(num_replicas > 1) || !(num_replicas <= 10)) {
-        console.log("here2");
         return false;
     }
 
     if (!(num_byzantine >= 0) || !(num_byzantine <= 10)) {
-        console.log("here3");
         return false;
     }
 
     if (!(num_transactions > 0) || !(num_transactions <= 10)) {
-        console.log("here4");
+        return false;
+    }
+
+    if ((num_byzantine > 0) && (byz_behave === "none")) {
         return false;
     }
 
@@ -36,12 +36,11 @@ $('#submitButton').on('click', function() {
     let num_replicas = document.getElementById('num_replicas').value;
     let num_byzantine = document.getElementById('num_byzantine').value;
     let num_transactions = document.getElementById('num_transactions').value;
+    let byz_behave = document.getElementById('byz_behave').value;
 
     let errors = document.getElementById('errors');
 
-    let validate_result = validate_inputs(num_replicas, num_byzantine, num_transactions);
-
-    console.log(validate_result);
+    let validate_result = validate_inputs(num_replicas, num_byzantine, num_transactions, byz_behave);
     
     if (validate_result) {
         errors.innerHTML = ""

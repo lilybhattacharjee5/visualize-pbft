@@ -5,8 +5,9 @@ from simulation.simulator import run_simulation
 import configparser
 
 default_num_replicas = 4
-default_num_byzantine = 1
+default_num_byzantine = 0
 default_num_transactions = 1
+default_byz_behave = "none"
 
 config = configparser.ConfigParser()
 config.read("app_settings.ini")
@@ -40,7 +41,7 @@ def setup_bank():
     except:
         db.session.rollback()
 
-def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzantine, num_transactions = default_num_transactions):
+def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzantine, num_transactions = default_num_transactions, byz_behave = default_byz_behave):
     setup_bank()
 
     try:
@@ -49,7 +50,7 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
     except:
         db.session.rollback()
 
-    data = run_simulation(num_replicas = num_replicas, num_byzantine = num_byzantine, num_transactions = num_transactions).values.tolist()
+    data = run_simulation(num_replicas = num_replicas, num_byzantine = num_byzantine, num_transactions = num_transactions, byz_behave = byz_behave).values.tolist()
 
     data_lst = []
     for d in data:
@@ -72,10 +73,14 @@ def show_all():
         num_replicas = int(data.get('num_replicas'))
         num_byzantine = int(data.get('num_byzantine'))
         num_transactions = int(data.get('num_transactions'))
+        byz_behave = data.get('byz_behave')
     else:
         num_replicas = default_num_replicas
         num_byzantine = default_num_byzantine
         num_transactions = default_num_transactions
+        byz_behave = default_byz_behave
 
-    data_lst = sim(num_replicas = num_replicas, num_byzantine = num_byzantine, num_transactions = num_transactions)
+    if byz_behave == "none": byz_behave = None
+
+    data_lst = sim(num_replicas = num_replicas, num_byzantine = num_byzantine, num_transactions = num_transactions, byz_behave = byz_behave)
     return render_template("index.html", data = data_lst)

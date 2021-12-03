@@ -1,12 +1,12 @@
 from simulation.message_generator import generate_transaction_msg
 
 ## CLIENT FUNCTIONS
-def send_transaction(queues, client_name, primary_name, curr_transaction, curr_view, p):
+def send_transaction(queues, client_name, primary_name, curr_transaction, curr_view, p, client_signing_key):
     for q_name, q in queues.items():
         if q_name != client_name:
             if q_name == primary_name:
                 print("Client sending transaction to primary", primary_name)
-                q["to_machine"].put((generate_transaction_msg(client_name, primary_name, curr_transaction, curr_view, p), primary_name))
+                q["to_machine"].put((generate_transaction_msg(client_name, primary_name, curr_transaction, curr_view, p, client_signing_key), primary_name))
             else:
                 print("Client sending transaction to replica", q_name)
                 q["to_machine"].put((None, primary_name))

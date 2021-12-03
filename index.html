@@ -21,10 +21,13 @@
                 <div class = "form-item">Number of Byzantine replicas: <input type = "text" name = "num_byzantine" id = "num_byzantine" /><br /></div>
                 <div class = "form-item">Number of transactions: <input type = "text" name = "num_transactions" id = "num_transactions" /><br /></div>
                 <div class = "form-item">
-                    <label for = "byz-behave">Type of Byzantine behavior:</label>
-                    <select id = "byz-behave" name = "byz-behave">
+                    <label for = "byz_behave">Type of Byzantine behavior:</label>
+                    <select id = "byz_behave" name = "byz_behave">
                         <option value = "none">None</option>
-                        <option value = "no-response">No response</option>
+                        <option value = "no_response">No response</option>
+                        <option value = "fake_client_transactions">Fake client transactions</option>
+                        <option value = "bad_transaction_results">Bad transaction results</option>
+                        <option value = "bad_view_change_requests">Bad view change requests</option>
                     </select>
                 </div>
                 <div class = "form-item">

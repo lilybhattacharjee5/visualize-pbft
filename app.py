@@ -117,6 +117,8 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
                 idx += 1
                 prev_t = t
             
+            if idx >= len(consensus_bank):
+                break
             curr_bank_state = consensus_bank[idx]
             bank_lst.append(curr_bank_state)
             count += 1

@@ -242,8 +242,14 @@ function generateForceGraph(data) {
 
     let log = document.getElementById("logTable");
     let logRows = log.querySelectorAll("tr");
+
     let currRow = logRows[idx + 1];
-    currRow.style["font-weight"] = "bold";
+    for (let i = 1; i < visibleLinks.length + 1; i++) {
+        let loopRow = logRows[idx + i];
+        loopRow.style["font-weight"] = "bold";
+        loopRow.style["background"] = "beige";
+    }
+    prevIdx = idx + 1;
 
     function ticked() {
         link.attr("d", linkArc);
@@ -258,12 +264,14 @@ function generateForceGraph(data) {
     }
 
     function update() {
-        idx += visibleLinks.length;
+        let prevVisibleLinks = visibleLinks.length;
+        idx += prevVisibleLinks;
         if (idx >= sequentialLinks.length) {
             return;
         }
 
         visibleLinks = findCurrLinks(sequentialLinks, idx);
+        console.log(visibleLinks);
         let probablePrimary = visibleLinks[0].primary;
         if (probablePrimary !== "") {
             currPrimary = probablePrimary;
@@ -284,9 +292,21 @@ function generateForceGraph(data) {
         simulation.force("link").links(visibleLinks);
         simulation.restart();
 
-        currRow.style["font-weight"] = "";
+        for (let i = prevIdx; i < prevIdx + prevVisibleLinks; i++) {
+            let loopRow = logRows[i];
+            loopRow.style["font-weight"] = "";
+            loopRow.style["background"] = "";
+        }
+        
         currRow = logRows[idx + 1];
-        currRow.style["font-weight"] = "bold";
+
+        for (let i = idx + 1; i < idx + 1 + visibleLinks.length; i++) {
+            let loopRow = logRows[i];
+            loopRow.style["font-weight"] = "bold";
+            loopRow.style["background"] = "beige";
+        }
+
+        prevIdx = idx + 1;
 
         displayBank(bankData[idx]);
     }

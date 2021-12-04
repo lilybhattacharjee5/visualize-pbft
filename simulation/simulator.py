@@ -182,10 +182,9 @@ def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_st
         print(r_name, "sending inform")
         send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, result, visible_log, frontend_log) # all replicas send an inform message to the client  
 
-def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave):
+def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log):
     manager = mp.Manager()
     visible_log = manager.list()
-    frontend_log = manager.list()
 
     # initialize mock db
     bank = {
@@ -392,25 +391,4 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave):
     for r_name, bank_copy in replica_bank_copies.items():
         print(r_name, json.dumps(bank_copy, cls=JSONEncoderWithDictProxy))
 
-    frontend_log = list(frontend_log)
-    type_data = list(map(lambda x: "" if "Type" not in x else x["Type"], frontend_log))
-    sender_data = list(map(lambda x: "" if "Sender" not in x else x["Sender"], frontend_log))
-    recipient_data = list(map(lambda x: "" if "Recipient" not in x else x["Recipient"], frontend_log))
-    transaction_data = list(map(lambda x: "" if "Transaction" not in x else x["Transaction"], frontend_log))
-    message_data = list(map(lambda x: "" if "Message" not in x else x["Message"], frontend_log))
-    view_data = list(map(lambda x: "" if "View" not in x else x["View"], frontend_log))
-    num_transaction_data = list(map(lambda x: "" if "Num_transaction" not in x else x["Num_transaction"], frontend_log))
-    result_data = list(map(lambda x: "" if "Result" not in x else x["Result"], frontend_log))
-
-    frontend_log_data = pd.DataFrame({
-        "Type": type_data,
-        "Sender": sender_data,
-        "Recipient": recipient_data,
-        "Transaction": transaction_data,
-        "Message": message_data,
-        "View": view_data,
-        "Num_transaction": num_transaction_data,
-        "Result": result_data,
-        })
-
-    return frontend_log_data
+    print("done")

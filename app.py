@@ -3,6 +3,10 @@ from flask import Flask, request, render_template, redirect, url_for, session, j
 import pandas as pd
 from simulation.simulator import run_simulation
 import configparser
+import signal 
+from contextlib import contextmanager
+import multiprocessing as mp
+import time
 
 default_num_replicas = 4
 default_num_byzantine = 0
@@ -50,7 +54,34 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
     except:
         db.session.rollback()
 
-    data = run_simulation(num_replicas = num_replicas, num_byzantine = num_byzantine, num_transactions = num_transactions, byz_behave = byz_behave).values.tolist()
+    manager = mp.Manager()
+    frontend_log = manager.list()
+    p = mp.Process(target = run_simulation, args = (num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log))
+    p.start()
+    p.join(timeout = 20)
+
+    frontend_log = list(frontend_log)
+    type_data = list(map(lambda x: "" if "Type" not in x else x["Type"], frontend_log))
+    sender_data = list(map(lambda x: "" if "Sender" not in x else x["Sender"], frontend_log))
+    recipient_data = list(map(lambda x: "" if "Recipient" not in x else x["Recipient"], frontend_log))
+    transaction_data = list(map(lambda x: "" if "Transaction" not in x else x["Transaction"], frontend_log))
+    message_data = list(map(lambda x: "" if "Message" not in x else x["Message"], frontend_log))
+    view_data = list(map(lambda x: "" if "View" not in x else x["View"], frontend_log))
+    num_transaction_data = list(map(lambda x: "" if "Num_transaction" not in x else x["Num_transaction"], frontend_log))
+    result_data = list(map(lambda x: "" if "Result" not in x else x["Result"], frontend_log))
+
+    frontend_log_data = pd.DataFrame({
+        "Type": type_data,
+        "Sender": sender_data,
+        "Recipient": recipient_data,
+        "Transaction": transaction_data,
+        "Message": message_data,
+        "View": view_data,
+        "Num_transaction": num_transaction_data,
+        "Result": result_data,
+        })
+
+    data = frontend_log_data.values.tolist()
 
     data_lst = []
     for d in data:

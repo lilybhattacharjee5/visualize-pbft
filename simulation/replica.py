@@ -110,7 +110,7 @@ def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, vi
                 counter += 1
         except:
             counter += 1
-            if counter > 10:
+            if counter > 5:
                 print("{} has detected primary failure".format(r_name))
                 send_view_change(queues, r_name, client_name, frontend_log)
                 detected_failure = True

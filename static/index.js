@@ -12,11 +12,11 @@ function validate_inputs(num_replicas_val, num_byzantine_val, num_transactions_v
     let num_byzantine = parseInt(num_byzantine_val);
     let num_transactions = parseInt(num_transactions_val);
 
-    if (!(num_replicas > 1) || !(num_replicas <= 10)) {
+    if (!(num_replicas > 1) || !(num_replicas <= 8)) {
         return false;
     }
 
-    if (!(num_byzantine >= 0) || !(num_byzantine <= 10)) {
+    if (!(num_byzantine >= 0) || !(num_byzantine <= 8)) {
         return false;
     }
 
@@ -50,7 +50,7 @@ $('#submitButton').on('click', function() {
 
     } else {
         // set error div text
-        errors.innerHTML = "One / more parameters is invalid. Please check that 1 < num_replicas <= 10, 0 <= num_byzantine <= 10, 0 < num_transactions <= 10."
+        errors.innerHTML = "One / more parameters is invalid. Please check that 1 < num_replicas <= 8, 0 <= num_byzantine <= 10, 0 < num_transactions <= 10."
     }
 });
 

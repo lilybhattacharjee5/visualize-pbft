@@ -63,7 +63,7 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
         db_states[r_name] = manager.list()
     p = mp.Process(target = run_simulation, args = (num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states))
     p.start()
-    p.join(timeout = 10) # 20
+    p.join(timeout = 2) # 20
 
     frontend_log = list(frontend_log)
     type_data = list(map(lambda x: "" if "Type" not in x else x["Type"], frontend_log))
@@ -71,31 +71,24 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
     recipient_data = list(map(lambda x: "" if "Recipient" not in x else x["Recipient"], frontend_log))
     primary_data = list(map(lambda x: "" if "Primary" not in x else x["Primary"], frontend_log))
     transaction_data = list(map(lambda x: "" if "Transaction" not in x else x["Transaction"], frontend_log))
-    message_data = list(map(lambda x: "" if "Message" not in x else x["Message"], frontend_log))
+    message_data = list(map(lambda x: "" if "Communication" not in x else str(x["Communication"]), frontend_log))
     view_data = list(map(lambda x: "" if "View" not in x else x["View"], frontend_log))
     num_transaction_data = list(map(lambda x: "" if "Num_transaction" not in x else x["Num_transaction"], frontend_log))
     result_data = list(map(lambda x: "" if "Result" not in x else x["Result"], frontend_log))
 
+    # interpolate num transactions data
+    prev_num_transaction = num_transaction_data[0]
+    for t in range(len(num_transaction_data)):
+        if num_transaction_data[t] == '':
+            num_transaction_data[t] = prev_num_transaction
+        else:
+            prev_num_transaction = num_transaction_data[t]
+
     bank_lst = []
     consensus_bank = list(db_states["Replica_0"])
-    prev_t = transaction_data[0]
-    visible_num_transactions = []
-    idx = 0
-    if len(consensus_bank) > 0:
-        curr_bank_state = consensus_bank[idx]
-        count = 0
-        inform_flag = False
-        for t in transaction_data:
-            if t != prev_t and t != "":
-                idx += 1
-                prev_t = t
-            
-            if idx >= len(consensus_bank):
-                break
-            curr_bank_state = consensus_bank[idx]
-            bank_lst.append(curr_bank_state)
-            visible_num_transactions.append(idx + 1)
-            count += 1
+
+    for num in num_transaction_data:
+        bank_lst.append(consensus_bank[num])
 
     frontend_log_data = pd.DataFrame({
         "Type": type_data,
@@ -105,8 +98,7 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
         "Transaction": transaction_data,
         "Message": message_data,
         "View": view_data,
-        "Num_transaction": num_transaction_data,
-        "Visible_num_transaction": visible_num_transactions,
+        "Visible_num_transaction": num_transaction_data,
         "Result": result_data,
         })
 
@@ -122,9 +114,8 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
             "Transaction": d[4],
             "Message": d[5],
             "View": d[6],
-            "Num_transaction": d[7],
-            "Visible_num_transaction": d[8],
-            "Result": d[9],
+            "Visible_num_transaction": d[7],
+            "Result": d[8],
         })
 
     return data_lst, bank_lst

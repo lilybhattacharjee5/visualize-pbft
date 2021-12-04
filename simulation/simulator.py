@@ -7,11 +7,12 @@ import sys
 import json
 import copy
 import ast
+import os
 from simulation.client import send_transaction, replica_ack_primary, recv_inform
 from simulation.replica import send_view_change, send_new_view, recv_new_view, recv_preprepare, send_prepare, recv_prepare, send_commit, recv_commit, send_inform 
 from simulation.primary import send_preprepare
 from simulation.message_generator import generate_new_view_msg
-from simulation.utils import verify_signature
+from simulation.utils import verify_signature, verify_mac
 from nacl.signing import SigningKey, VerifyKey
 
 # mp = multiprocessing.get_context('spawn')
@@ -48,7 +49,7 @@ def clear_all_queues(q_list):
 
 ## TRANSACTION EXECUTION (TEMPORARY)
 def execute_transaction(curr_transaction, r_name, replica_bank_copies, db_state):
-    sender, receiver, amt = ast.literal_eval(curr_transaction.message.decode("utf-8"))
+    sender, receiver, amt = curr_transaction #ast.literal_eval(curr_transaction.message.decode("utf-8"))
     
     # does sender have at least amt to transfer?
     replica_bank = replica_bank_copies[r_name]
@@ -63,7 +64,7 @@ def execute_transaction(curr_transaction, r_name, replica_bank_copies, db_state)
     return { sender: replica_bank[sender]["Balance"], receiver: replica_bank[receiver]["Balance"] }
 
 ## MULTIPROCESSING
-def client_proc(client_name, client_signing_key, verify_keys, transactions, queues, t_queue, m_queue, visible_log, frontend_log, num_replicas, f, g):
+def client_proc(client_name, client_signing_key, verify_keys, transactions, queues, t_queue, m_queue, visible_log, frontend_log, num_replicas, f, g, client_session_keys, replica_names):
     to_client = queues[client_name]
 
     status = True
@@ -81,13 +82,13 @@ def client_proc(client_name, client_signing_key, verify_keys, transactions, queu
         while curr_transaction_status:
             # client sends transaction to the primary of the current view
             print("Client sending transaction", curr_transaction, primary_name)
-            send_transaction(queues, client_name, primary_name, curr_transaction, curr_view, p, client_signing_key)
+            send_transaction(queues, client_name, primary_name, curr_transaction, curr_view, p, client_session_keys, replica_names)
 
             # wait for all replicas to acknowledge that primary has been informed
             replica_ack_primary(to_client, num_replicas, m_queue)
 
             # client receives f + 1 identical inform messages
-            failure_status = recv_inform(to_client, f, visible_log)
+            failure_status = recv_inform(to_client, f, visible_log, client_session_keys)
             print("failure status", failure_status)
             if failure_status == None:
                 curr_view += 1
@@ -103,9 +104,11 @@ def client_proc(client_name, client_signing_key, verify_keys, transactions, queu
         m_queue.put("move to the next transaction")
         print("put into mqueue")
 
-def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_status, t_queue, m_queue, visible_log, frontend_log, replica_logs, replica_bank_copies, f, g, good_replicas, db_state):
+def replica_proc(r_name, r_idx, r_signing_key, verify_keys, client_name, queues, byz_status, t_queue, m_queue, visible_log, frontend_log, replica_logs, replica_bank_copies, f, g, good_replicas, db_state, replica_session_keys, replica_names):
     to_client = queues[client_name]["to_machine"]
     to_curr_replica = queues[r_name]
+    transaction_communication_auth = None
+    transaction_communication_msg = None
     
     status = True
     while status:
@@ -114,7 +117,6 @@ def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_st
         received = False
         while not received:
             queue_elem = to_curr_replica["to_machine"].get()
-            print("queue elem", queue_elem)
 
             if len(queue_elem) > 1:
                 if queue_elem[0] == None:
@@ -123,20 +125,31 @@ def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_st
 
                 # verify that the signature is from client / that the msg hasn't been tampered with
                 transaction_msg = queue_elem[0]
-                probable_transaction = transaction_msg["Transaction"]
-                if not verify_signature(probable_transaction, verify_keys[client_name]):
+                transaction_communication = transaction_msg["Communication"]
+                encoded_transaction_communication_msg = transaction_communication["Message"]
+                transaction_communication_msg = json.loads(encoded_transaction_communication_msg)
+                transaction_communication_auth = transaction_communication["Authenticator"]
+
+                if not verify_mac(encoded_transaction_communication_msg, replica_session_keys[client_name], transaction_communication_auth[r_idx]):
                     continue
+
+                print("VALIDATED!!!")
+
+                # probable_transaction = transaction_msg["Transaction"]
+                # if not verify_signature(probable_transaction, verify_keys[client_name]):
+                #     continue
 
                 if transaction_msg == None or transaction_msg["Type"] == "Transaction":
                     received = True 
 
-        transaction, primary_name  = transaction_msg, queue_elem[1]
+        transaction, m_auth, primary_name  = transaction_msg, transaction_communication_auth, queue_elem[1]
         print(transaction, primary_name)
 
         visible_log.append("{} {}".format(transaction, primary_name))
         if transaction:
             primary_status = True
-            curr_transaction, curr_view, p = transaction["Transaction"], transaction["View"], transaction["Num_transaction"]
+            # print("THIS IS IT", transaction_communication_msg["Operation"])
+            curr_transaction, curr_view, p = transaction_communication, transaction["View"], transaction["Num_transaction"]
         else:
             # must be a regular replica
             primary_status = False
@@ -151,19 +164,20 @@ def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_st
 
         if primary_status:
             # primary broadcasts pre-prepare message to all other replicas
-            m = send_preprepare(to_curr_replica, r_signing_key, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, byz_status, visible_log, frontend_log, r_signing_key, primary_name)
+            m = send_preprepare(to_curr_replica, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, byz_status, visible_log, frontend_log, primary_name, replica_session_keys, m_auth, replica_names)
         else:
             # replicas receive pre-prepare message
-            m = recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys, byz_status, primary_name)
+            m = recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys, byz_status, primary_name, replica_session_keys, r_idx)
             if m == None:
                 print("{} exit prematurely, restart the transaction".format(r_name))
                 continue
             curr_transaction, p = m["Transaction"], m["Num_transaction"]
 
         # prepare phase
-        send_prepare(queues, client_name, r_name, byz_status, m, visible_log, frontend_log, primary_name)
+        curr_view = m["View"]
+        send_prepare(queues, client_name, r_name, byz_status, m, visible_log, frontend_log, primary_name, r_idx, replica_names, replica_session_keys, curr_view)
 
-        m = recv_prepare(to_curr_replica, r_name, m_queue, byz_status, g, visible_log)
+        m = recv_prepare(to_curr_replica, r_name, m_queue, byz_status, g, visible_log, replica_session_keys, r_idx)
         if m == None:
             print("{} exit prematurely, restart the transaction".format(r_name))
             # induce client to resend transaction
@@ -173,19 +187,21 @@ def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_st
             continue
 
         # commit phase
-        send_commit(queues, client_name, r_name, m_queue, byz_status, m, visible_log, frontend_log, primary_name)
+        send_commit(queues, client_name, r_name, m_queue, byz_status, m, visible_log, frontend_log, primary_name, r_idx, replica_names, replica_session_keys, curr_view)
 
-        recv_commit(to_curr_replica, r_name, m_queue, byz_status, m, g, visible_log, frontend_log)
+        recv_commit(to_curr_replica, r_name, m_queue, byz_status, m, g, visible_log, frontend_log, replica_session_keys, r_idx)
 
         # append transaction to replica log
         replica_logs[r_name].append(curr_transaction)
 
         # execute transaction, generate optional result
+        if r_name == primary_name:
+            curr_transaction = json.loads(curr_transaction["Message"])["Operation"]
         print("Executing transaction {} {}".format(curr_transaction, r_name))
         result = execute_transaction(curr_transaction, r_name, replica_bank_copies, db_state)
 
-        print(r_name, "sending inform")
-        send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, result, visible_log, frontend_log, primary_name) # all replicas send an inform message to the client  
+        print(r_name, "sending inform", curr_transaction)
+        send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, result, visible_log, frontend_log, primary_name, r_idx, curr_view, replica_session_keys[client_name]) # all replicas send an inform message to the client  
 
 def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states):
     manager = mp.Manager()
@@ -284,11 +300,34 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
         signing_keys[r_name] = replica_signing_key
         verify_keys[r_name] = replica_signing_key.verify_key
 
+    # generate a secret set of session keys between each pair of nodes
+    session_keys = {}
+    for idx1 in range(len(all_machine_names)):
+        machine1 = all_machine_names[idx1]
+        for idx2 in range(idx1 + 1, len(all_machine_names)):
+            machine2 = all_machine_names[idx2]
+            curr_session_key = os.urandom(16)
+            if machine1 in session_keys:
+                session_keys[machine1][machine2] = curr_session_key
+            else:
+                session_keys[machine1] = { machine2: curr_session_key }
+
+            if machine2 in session_keys:
+                session_keys[machine2][machine1] = curr_session_key
+            else:
+                session_keys[machine2] = { machine1: curr_session_key }
+
+    print(session_keys)
+
     # spawn client and replica processes
     t_queue = mp.Queue()
     m_queue = mp.Queue()
-    client = mp.Process(name = client_name, target = client_proc, args = (client_name, client_signing_key, verify_keys, transactions, machine_queues, t_queue, m_queue, visible_log, frontend_log, num_replicas, f, g ))
-    replicas = [mp.Process(name = r_name, target = replica_proc, args = (r_name, signing_keys[r_name], verify_keys, client_name, machine_queues, byz_behave if r_name in byz_replica_names else None, t_queue, m_queue, visible_log, frontend_log, replica_logs, replica_bank_copies, f, g, good_replicas, local_db_states[r_name] )) for r_name in replica_names]
+    client = mp.Process(name = client_name, target = client_proc, args = (client_name, client_signing_key, verify_keys, transactions, machine_queues, t_queue, m_queue, visible_log, frontend_log, num_replicas, f, g, session_keys[client_name], replica_names ))
+    replicas = []
+    for r_idx in range(len(replica_names)):
+        r_name = replica_names[r_idx]
+        curr_replica = mp.Process(name = r_name, target = replica_proc, args = (r_name, r_idx, signing_keys[r_name], verify_keys, client_name, machine_queues, byz_behave if r_name in byz_replica_names else None, t_queue, m_queue, visible_log, frontend_log, replica_logs, replica_bank_copies, f, g, good_replicas, local_db_states[r_name], session_keys[r_name], replica_names ))
+        replicas.append(curr_replica)
     print("byz", [byz_behave if r_name in byz_replica_names else None for r_name in replica_names])
 
     client.start()

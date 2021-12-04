@@ -110,6 +110,8 @@ function generateGraphData(data) {
         let primary = elem["Primary"];
         let type = elem["Type"];
         let visibleNumTransaction = elem["Visible_num_transaction"];
+        let transaction = elem["Transaction"];
+        let message = elem["Message"];
 
         links.push({
             "source": sender,
@@ -117,7 +119,9 @@ function generateGraphData(data) {
             "primary": primary,
             "value": 1,
             "type": type,
-            "visible_num_transaction": visibleNumTransaction
+            "visible_num_transaction": visibleNumTransaction,
+            "transaction": transaction,
+            "message": message
         })
     }
 
@@ -137,9 +141,10 @@ function displayLog(data) {
             <th>Sender</th>
             <th>Recipient</th>
             <th>Phase</th>
+            <th>Communication</th>
         </tr>`;
     for (const logEntry of data) {
-        let currDisplay = "<tr><td>" + logEntry["Sender"] + "</td><td>" + logEntry["Recipient"] + "</td><td>" + logEntry["Type"] + "</td></tr>";
+        let currDisplay = "<tr><td>" + logEntry["Sender"] + "</td><td>" + logEntry["Recipient"] + "</td><td>" + logEntry["Type"] + "</td><td>" + logEntry["Message"] + "</td></tr>";
         displayHTML += currDisplay;
     }
     displayHTML += "</table>";

@@ -26,7 +26,7 @@ def byz_replica_send_inform(to_client, client_name, r_name, byz_status, curr_tra
         inform_msg = generate_inform_msg(r_name, client_name, curr_transaction, p, bad_result, primary_name)
         to_client.put([inform_msg])
         clean_inform_msg = copy.deepcopy(inform_msg)
-        clean_inform_msg["Transaction"] = str(clean_inform_msg["Transaction"].message)
+        clean_inform_msg["Transaction"] = str(clean_inform_msg["Transaction"].message.decode("utf-8"))
         frontend_log.append(clean_inform_msg)
         visible_log.append("{} has sent inform message to client".format(r_name))
     else:
@@ -227,6 +227,6 @@ def send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p,
         inform_msg = generate_inform_msg(r_name, client_name, curr_transaction, p, r, primary_name)
         to_client.put([inform_msg])
         clean_inform_msg = copy.deepcopy(inform_msg)
-        clean_inform_msg["Transaction"] = str(clean_inform_msg["Transaction"].message)
+        clean_inform_msg["Transaction"] = str(clean_inform_msg["Transaction"].message.decode("utf-8"))
         frontend_log.append(clean_inform_msg)
         visible_log.append("{} has sent inform message to client".format(r_name))

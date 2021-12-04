@@ -16,30 +16,34 @@
                 </div>
                 <div id = "log" class = "window-item"></div>
             </div>
-            <form id = "options" method = "post" action = "/" enctype = "application/json">
-                <div class = "form-item">Number of replicas: <input type = "text" name = "num_replicas" id = "num_replicas" /><br /></div>
-                <div class = "form-item">Number of Byzantine replicas: <input type = "text" name = "num_byzantine" id = "num_byzantine" /><br /></div>
-                <div class = "form-item">Number of transactions: <input type = "text" name = "num_transactions" id = "num_transactions" /><br /></div>
-                <div class = "form-item">
-                    <label for = "byz_behave">Type of Byzantine behavior:</label>
-                    <select id = "byz_behave" name = "byz_behave">
-                        <option value = "none">None</option>
-                        <option value = "no_response">No response</option>
-                        <option value = "fake_client_transactions">Fake client transactions</option>
-                        <option value = "bad_transaction_results">Bad transaction results</option>
-                        <option value = "bad_view_change_requests">Bad view change requests</option>
-                    </select>
-                </div>
-                <div class = "form-item">
-                    <input type = "button" id = "submitButton" value = "Submit" />
-                </div>
-                <div id = "errors"></div>
+            <div id = "display">
+                <form id = "options" method = "post" action = "/" enctype = "application/json" class = "display-item">
+                    <div class = "form-item">Number of replicas: <input type = "text" name = "num_replicas" id = "num_replicas" /><br /></div>
+                    <div class = "form-item">Number of Byzantine replicas: <input type = "text" name = "num_byzantine" id = "num_byzantine" /><br /></div>
+                    <div class = "form-item">Number of transactions: <input type = "text" name = "num_transactions" id = "num_transactions" /><br /></div>
+                    <div class = "form-item">
+                        <label for = "byz_behave">Type of Byzantine behavior:</label>
+                        <select id = "byz_behave" name = "byz_behave">
+                            <option value = "none">None</option>
+                            <option value = "no_response">No response</option>
+                            <option value = "fake_client_transactions">Fake client transactions</option>
+                            <option value = "bad_transaction_results">Bad transaction results</option>
+                            <option value = "bad_view_change_requests">Bad view change requests</option>
+                        </select>
+                    </div>
+                    <div class = "form-item">
+                        <input type = "button" id = "submitButton" value = "Submit" />
+                    </div>
+                    <div id = "errors"></div>
+                </form>
+                <div id = "bankDisplay" class = "display-item"></div>
             </div>
         </div>
     </body>
     <script type = "text/javascript" src = "{{ url_for('static', filename = 'index.js') }}"></script>
     <script type = "text/javascript">
-        var data = {{ data | tojson }};
-        onload(data);
+        var logData = {{ log_data | tojson }};
+        var bankData = {{ bank_data | tojson }};
+        onload(logData, bankData);
     </script>
 </html>

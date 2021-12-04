@@ -30,7 +30,7 @@ def send_preprepare(to_curr_replica, r_signing_key, queues, client_name, r_name,
             if q_name != client_name and q_name != r_name:
                 prep_msg = generate_preprepare_msg(r_name, q_name, curr_transaction, curr_view, p, primary_signing_key, primary_name)
                 clean_prep_msg = copy.deepcopy(prep_msg)
-                clean_prep_msg["Transaction"] = str(clean_prep_msg["Transaction"].message)
+                clean_prep_msg["Transaction"] = str(clean_prep_msg["Transaction"].message.decode("utf-8"))
                 frontend_log.append(clean_prep_msg)
                 q["to_machine"].put([prep_msg])
         m_queue.put(r_name + " pre-prepare phase done")

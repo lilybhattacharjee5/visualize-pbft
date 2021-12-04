@@ -47,14 +47,19 @@ def clear_all_queues(q_list):
             clear(a)
 
 ## TRANSACTION EXECUTION (TEMPORARY)
-def execute_transaction(curr_transaction, r_name, replica_bank_copies):
-    print("transaction", curr_transaction)
-
+def execute_transaction(curr_transaction, r_name, replica_bank_copies, db_state):
     sender, receiver, amt = ast.literal_eval(curr_transaction.message.decode("utf-8"))
+    
     # does sender have at least amt to transfer?
     replica_bank = replica_bank_copies[r_name]
     if replica_bank[sender]["Balance"] >= amt:
         replica_bank[sender]["Balance"], replica_bank[receiver]["Balance"] = replica_bank[sender]["Balance"] - amt, replica_bank[receiver]["Balance"] + amt 
+    
+    replica_bank_copy = dict(copy.deepcopy(replica_bank))
+    for key in replica_bank_copy.keys():
+        replica_bank_copy[key] = dict(replica_bank[key])
+    print("appending", replica_bank_copy)
+    db_state.append(replica_bank_copy)
     return { sender: replica_bank[sender]["Balance"], receiver: replica_bank[receiver]["Balance"] }
 
 ## MULTIPROCESSING
@@ -98,7 +103,7 @@ def client_proc(client_name, client_signing_key, verify_keys, transactions, queu
         m_queue.put("move to the next transaction")
         print("put into mqueue")
 
-def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_status, t_queue, m_queue, visible_log, frontend_log, replica_logs, replica_bank_copies, f, g, good_replicas):
+def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_status, t_queue, m_queue, visible_log, frontend_log, replica_logs, replica_bank_copies, f, g, good_replicas, db_state):
     to_client = queues[client_name]["to_machine"]
     to_curr_replica = queues[r_name]
     
@@ -177,12 +182,12 @@ def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_st
 
         # execute transaction, generate optional result
         print("Executing transaction {} {}".format(curr_transaction, r_name))
-        result = execute_transaction(curr_transaction, r_name, replica_bank_copies)
+        result = execute_transaction(curr_transaction, r_name, replica_bank_copies, db_state)
 
         print(r_name, "sending inform")
         send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, result, visible_log, frontend_log, primary_name) # all replicas send an inform message to the client  
 
-def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log):
+def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states):
     manager = mp.Manager()
     visible_log = manager.list()
 
@@ -236,6 +241,14 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
     byz_replica_names = ["Replica_{}".format(r) for r in byz_idxes]
     good_replicas = ["Replica_{}".format(r) for r in list(set(range(num_replicas)) - set(byz_idxes))]
 
+    local_db_states = manager.dict()
+    for r_name in replica_names:
+        local_db_states[r_name] = manager.list()
+        local_db_states[r_name].append(bank)
+
+    for r_name in replica_names:
+        db_states[r_name] = list(local_db_states[r_name])
+
     replica_logs = {}
     replica_bank_copies = {}
     for r in replica_names:
@@ -275,7 +288,7 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
     t_queue = mp.Queue()
     m_queue = mp.Queue()
     client = mp.Process(name = client_name, target = client_proc, args = (client_name, client_signing_key, verify_keys, transactions, machine_queues, t_queue, m_queue, visible_log, frontend_log, num_replicas, f, g ))
-    replicas = [mp.Process(name = r_name, target = replica_proc, args = (r_name, signing_keys[r_name], verify_keys, client_name, machine_queues, byz_behave if r_name in byz_replica_names else None, t_queue, m_queue, visible_log, frontend_log, replica_logs, replica_bank_copies, f, g, good_replicas )) for r_name in replica_names]
+    replicas = [mp.Process(name = r_name, target = replica_proc, args = (r_name, signing_keys[r_name], verify_keys, client_name, machine_queues, byz_behave if r_name in byz_replica_names else None, t_queue, m_queue, visible_log, frontend_log, replica_logs, replica_bank_copies, f, g, good_replicas, local_db_states[r_name] )) for r_name in replica_names]
     print("byz", [byz_behave if r_name in byz_replica_names else None for r_name in replica_names])
 
     client.start()
@@ -390,3 +403,6 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
     # states of replica banks
     for r_name, bank_copy in replica_bank_copies.items():
         print(r_name, json.dumps(bank_copy, cls=JSONEncoderWithDictProxy))
+
+    for r_name in replica_names:
+        db_states[r_name] = list(local_db_states[r_name])

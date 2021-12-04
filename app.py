@@ -7,6 +7,7 @@ import signal
 from contextlib import contextmanager
 import multiprocessing as mp
 import time
+import json
 
 default_num_replicas = 4
 default_num_byzantine = 0
@@ -56,7 +57,11 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
 
     manager = mp.Manager()
     frontend_log = manager.list()
-    p = mp.Process(target = run_simulation, args = (num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log))
+    db_states = manager.dict()
+    for r in range(num_replicas):
+        r_name = "Replica_{}".format(r)
+        db_states[r_name] = manager.list()
+    p = mp.Process(target = run_simulation, args = (num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states))
     p.start()
     p.join(timeout = 2) # 20
 
@@ -98,7 +103,24 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
             "Num_transaction": d[6],
             "Result": d[7],
         })
-    return data_lst
+
+    bank_lst = []
+    consensus_bank = list(db_states["Replica_0"])
+    prev_t = transaction_data[0]
+    idx = 0
+    if len(consensus_bank) > 0:
+        curr_bank_state = consensus_bank[idx]
+        count = 0
+        inform_flag = False
+        for t in transaction_data:
+            if t != prev_t and t != "":
+                idx += 1
+                prev_t = t
+            
+            curr_bank_state = consensus_bank[idx]
+            bank_lst.append(curr_bank_state)
+            count += 1
+    return data_lst, bank_lst
 
 @app.route("/", methods = ["POST", "GET"])
 def show_all():
@@ -116,5 +138,5 @@ def show_all():
 
     if byz_behave == "none": byz_behave = None
 
-    data_lst = sim(num_replicas = num_replicas, num_byzantine = num_byzantine, num_transactions = num_transactions, byz_behave = byz_behave)
-    return render_template("index.html", data = data_lst)
+    data_lst, bank_lst = sim(num_replicas = num_replicas, num_byzantine = num_byzantine, num_transactions = num_transactions, byz_behave = byz_behave)
+    return render_template("index.html", log_data = data_lst, bank_data = bank_lst)

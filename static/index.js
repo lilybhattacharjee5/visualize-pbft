@@ -1,6 +1,7 @@
-function onload(data) {
-    displayLog(data);
-    generateForceGraph(data);
+function onload(logData, bankData) {
+    displayLog(logData);
+    displayBank(bankData[0])
+    generateForceGraph(logData);
 }
 
 function colorNodes(nodeName) {
@@ -75,6 +76,8 @@ function generateGraphData(data) {
         names.push(recipient);
     }
 
+    names.push("Client");
+
     let nodes = [];
     let unique_names = [... new Set(names)];
     let name_id_mapper = {};
@@ -127,6 +130,26 @@ function displayLog(data) {
     }
     displayHTML += "</table>";
     log.innerHTML = displayHTML;
+}
+
+function displayBank(bankData) {
+    if (!bankData) {
+        return;
+    }
+
+    let bank = document.getElementById("bankDisplay");
+    let displayHTML = `<h5>Bank</h5>
+        <table id = 'bankTable' style = 'width: 100%;'>
+        <tr>
+            <th>Customer</th>
+            <th>Balance</th>
+        </tr>`;
+    for (const [customer, balanceValue] of Object.entries(bankData)) {
+        let currDisplay = "<tr><td>" + customer + "</td><td>" + balanceValue["Balance"] + "</td></tr>";
+        displayHTML += currDisplay;
+    }
+    displayHTML += "</table>";
+    bank.innerHTML = displayHTML;
 }
 
 function findCurrLinks(sequentialLinks, i) {
@@ -264,6 +287,8 @@ function generateForceGraph(data) {
         currRow.style["font-weight"] = "";
         currRow = logRows[idx + 1];
         currRow.style["font-weight"] = "bold";
+
+        displayBank(bankData[idx]);
     }
 
     const next = d3.select("#nextButton")

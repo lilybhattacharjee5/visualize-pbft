@@ -58,12 +58,13 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
     frontend_log = manager.list()
     p = mp.Process(target = run_simulation, args = (num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log))
     p.start()
-    p.join(timeout = 20)
+    p.join(timeout = 2) # 20
 
     frontend_log = list(frontend_log)
     type_data = list(map(lambda x: "" if "Type" not in x else x["Type"], frontend_log))
     sender_data = list(map(lambda x: "" if "Sender" not in x else x["Sender"], frontend_log))
     recipient_data = list(map(lambda x: "" if "Recipient" not in x else x["Recipient"], frontend_log))
+    primary_data = list(map(lambda x: "" if "Primary" not in x else x["Primary"], frontend_log))
     transaction_data = list(map(lambda x: "" if "Transaction" not in x else x["Transaction"], frontend_log))
     message_data = list(map(lambda x: "" if "Message" not in x else x["Message"], frontend_log))
     view_data = list(map(lambda x: "" if "View" not in x else x["View"], frontend_log))
@@ -74,6 +75,7 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
         "Type": type_data,
         "Sender": sender_data,
         "Recipient": recipient_data,
+        "Primary": primary_data,
         "Transaction": transaction_data,
         "Message": message_data,
         "View": view_data,
@@ -89,6 +91,7 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
             "Type": d[0],
             "Sender": d[1],
             "Recipient": d[2],
+            "Primary": d[3],
             "Transaction": d[3],
             "Message": d[4],
             "View": d[5],

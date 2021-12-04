@@ -146,29 +146,29 @@ def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_st
 
         if primary_status:
             # primary broadcasts pre-prepare message to all other replicas
-            m = send_preprepare(to_curr_replica, r_signing_key, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, byz_status, visible_log, frontend_log, r_signing_key)
+            m = send_preprepare(to_curr_replica, r_signing_key, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, byz_status, visible_log, frontend_log, r_signing_key, primary_name)
         else:
             # replicas receive pre-prepare message
-            m = recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys, byz_status)
+            m = recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys, byz_status, primary_name)
             if m == None:
                 print("{} exit prematurely, restart the transaction".format(r_name))
                 continue
             curr_transaction, p = m["Transaction"], m["Num_transaction"]
 
         # prepare phase
-        send_prepare(queues, client_name, r_name, byz_status, m, visible_log, frontend_log)
+        send_prepare(queues, client_name, r_name, byz_status, m, visible_log, frontend_log, primary_name)
 
         m = recv_prepare(to_curr_replica, r_name, m_queue, byz_status, g, visible_log)
         if m == None:
             print("{} exit prematurely, restart the transaction".format(r_name))
             # induce client to resend transaction
-            new_view_msg = generate_new_view_msg(r_name, client_name, curr_view + 1)
+            new_view_msg = generate_new_view_msg(r_name, client_name, curr_view + 1, primary_name)
             frontend_log.append(new_view_msg)
             to_client.put([new_view_msg])
             continue
 
         # commit phase
-        send_commit(queues, client_name, r_name, m_queue, byz_status, m, visible_log, frontend_log)
+        send_commit(queues, client_name, r_name, m_queue, byz_status, m, visible_log, frontend_log, primary_name)
 
         recv_commit(to_curr_replica, r_name, m_queue, byz_status, m, g, visible_log, frontend_log)
 
@@ -180,7 +180,7 @@ def replica_proc(r_name, r_signing_key, verify_keys, client_name, queues, byz_st
         result = execute_transaction(curr_transaction, r_name, replica_bank_copies)
 
         print(r_name, "sending inform")
-        send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, result, visible_log, frontend_log) # all replicas send an inform message to the client  
+        send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, result, visible_log, frontend_log, primary_name) # all replicas send an inform message to the client  
 
 def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log):
     manager = mp.Manager()
@@ -390,5 +390,3 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
     # states of replica banks
     for r_name, bank_copy in replica_bank_copies.items():
         print(r_name, json.dumps(bank_copy, cls=JSONEncoderWithDictProxy))
-
-    print("done")

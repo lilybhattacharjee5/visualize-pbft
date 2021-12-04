@@ -3,6 +3,16 @@ function onload(data) {
     generateForceGraph(data);
 }
 
+function colorNodes(nodeName) {
+    let replicaRegex = /Replica.*/
+    if (nodeName === "Client") {
+        return "blue";
+    } else if (nodeName.match(replicaRegex)) {
+        return "green";
+    } 
+    return "red";
+}
+
 function validate_inputs(num_replicas_val, num_byzantine_val, num_transactions_val, byz_behave) {
     if (isNaN(num_replicas_val) || isNaN(num_byzantine_val) || isNaN(num_transactions_val)) {
         return false;
@@ -82,11 +92,13 @@ function generateGraphData(data) {
     for (const elem of data) {
         let sender = name_id_mapper[elem["Sender"]];
         let recipient = name_id_mapper[elem["Recipient"]];
+        let primary = elem["Primary"];
         let type = elem["Type"];
 
         links.push({
             "source": sender,
             "target": recipient,
+            "primary": primary,
             "value": 1,
             "type": type,
         })
@@ -145,6 +157,7 @@ function generateForceGraph(data) {
     let nodes = graphData["nodes"];
     let sequentialLinks = graphData["links"]
     let visibleLinks = findCurrLinks(sequentialLinks, idx);
+    let currPrimary = "Replica_0";
 
     const forceNode = d3.forceManyBody();
     const forceLink = d3.forceLink(visibleLinks).strength(0);
@@ -183,12 +196,14 @@ function generateForceGraph(data) {
         .attr("fill", "black");
 
     let node = svg.append("g")
-        .attr("fill", "red")
-        .attr("stroke", "black")
     .selectAll("circle")
     .data(nodes)
     .join("circle")
-        .attr("r", 10);
+        .attr("r", 10)
+        .attr("stroke", "black")
+        .attr("fill", function (d) {
+            return colorNodes(d.name);
+        });
 
     let text = svg.selectAll("text")
         .data(nodes)
@@ -226,11 +241,22 @@ function generateForceGraph(data) {
         }
 
         visibleLinks = findCurrLinks(sequentialLinks, idx);
+        let probablePrimary = visibleLinks[0].primary;
+        if (probablePrimary !== "") {
+            currPrimary = probablePrimary;
+        }
 
         link = link
             .data(visibleLinks)
             .join("path")
             .attr("marker-end","url(#end-arrow)");
+
+        node = node.attr("fill", function(d) {
+            if (d.name === currPrimary) {
+                return colorNodes("Primary")
+            }
+            return colorNodes(d.name);
+        });
 
         simulation.force("link").links(visibleLinks);
         simulation.restart();

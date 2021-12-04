@@ -10,6 +10,8 @@
     <body>
         <div id = "container">
             <h1>Visualize pBFT</h1>
+            <div id = "currentSettings"></div>
+            <div id = "currentTransaction"></div>
             <div id = "window">
                 <div id = "visualization" class = "window-item">
                     <button type = "button" id = "nextButton">Next</button>
@@ -42,8 +44,13 @@
     </body>
     <script type = "text/javascript" src = "{{ url_for('static', filename = 'index.js') }}"></script>
     <script type = "text/javascript">
-        var logData = {{ log_data | tojson }};
-        var bankData = {{ bank_data | tojson }};
-        onload(logData, bankData);
+        let logData = {{ log_data | tojson }};
+        let bankData = {{ bank_data | tojson }};
+        let numReplicas = parseInt({{ num_replicas }});
+        let numByzantine = parseInt({{ num_byzantine }});
+        let numTransactions = parseInt({{ num_transactions }});
+        let byzBehave = "{{ byz_behave | safe }}";
+
+        onload(numReplicas, numByzantine, numTransactions, byzBehave, logData, bankData);
     </script>
 </html>

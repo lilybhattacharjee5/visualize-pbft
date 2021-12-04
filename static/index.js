@@ -1,7 +1,19 @@
-function onload(logData, bankData) {
+function onload(numReplicas, numByzantine, numTransactions, byzBehave, logData, bankData) {
+    displaySettings(numReplicas, numByzantine, numTransactions, byzBehave);
+    displayCurrentTransaction(1);
     displayLog(logData);
-    displayBank(bankData[0])
+    displayBank(bankData[0]);
     generateForceGraph(logData);
+}
+
+function displaySettings(numReplicas, numByzantine, numTransactions, byzBehave, currT) {
+    let currentSettings = document.getElementById("currentSettings");
+    currentSettings.innerHTML = `Number of replicas: <b>${numReplicas}</b> | Number of Byzantine replicas: <b>${numByzantine}</b> | Number of transactions: <b>${numTransactions}</b> | Behavior: <b>${byzBehave}</b>`;
+}
+
+function displayCurrentTransaction(currT) {
+    let currentTransaction = document.getElementById("currentTransaction");
+    currentTransaction.innerHTML = `Transaction <b>${currT}</b>`;
 }
 
 function colorNodes(nodeName) {
@@ -97,6 +109,7 @@ function generateGraphData(data) {
         let recipient = name_id_mapper[elem["Recipient"]];
         let primary = elem["Primary"];
         let type = elem["Type"];
+        let visibleNumTransaction = elem["Visible_num_transaction"];
 
         links.push({
             "source": sender,
@@ -104,6 +117,7 @@ function generateGraphData(data) {
             "primary": primary,
             "value": 1,
             "type": type,
+            "visible_num_transaction": visibleNumTransaction
         })
     }
 
@@ -200,7 +214,7 @@ function generateForceGraph(data) {
 
     let link = svg.append("g")
         .attr("stroke", "black")
-        .attr("stroke-opacity", 0.6)
+        .attr("stroke-opacity", 0.5)
         .attr("stroke-width", 5)
     .selectAll("path")
     .data(visibleLinks)
@@ -216,7 +230,8 @@ function generateForceGraph(data) {
         .attr("orient", "auto")
         .append("svg:path")
         .attr("d", "M0,-5L10,0L0,5")
-        .attr("fill", "black");
+        .attr("fill", "black")
+        .attr("opacity", 0.5);
 
     let node = svg.append("g")
     .selectAll("circle")
@@ -250,6 +265,7 @@ function generateForceGraph(data) {
         loopRow.style["background"] = "beige";
     }
     prevIdx = idx + 1;
+    let currT = 0;
 
     function ticked() {
         link.attr("d", linkArc);
@@ -276,6 +292,8 @@ function generateForceGraph(data) {
         if (probablePrimary !== "") {
             currPrimary = probablePrimary;
         }
+
+        currT = parseInt(visibleLinks[0].visible_num_transaction);
 
         link = link
             .data(visibleLinks)
@@ -307,6 +325,8 @@ function generateForceGraph(data) {
         }
 
         prevIdx = idx + 1;
+
+        displayCurrentTransaction(currT);
 
         displayBank(bankData[idx]);
     }

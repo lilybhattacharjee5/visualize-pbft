@@ -63,7 +63,7 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
         db_states[r_name] = manager.list()
     p = mp.Process(target = run_simulation, args = (num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states))
     p.start()
-    p.join(timeout = 2) # 20
+    p.join(timeout = 10) # 20
 
     frontend_log = list(frontend_log)
     type_data = list(map(lambda x: "" if "Type" not in x else x["Type"], frontend_log))
@@ -76,37 +76,10 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
     num_transaction_data = list(map(lambda x: "" if "Num_transaction" not in x else x["Num_transaction"], frontend_log))
     result_data = list(map(lambda x: "" if "Result" not in x else x["Result"], frontend_log))
 
-    frontend_log_data = pd.DataFrame({
-        "Type": type_data,
-        "Sender": sender_data,
-        "Recipient": recipient_data,
-        "Primary": primary_data,
-        "Transaction": transaction_data,
-        "Message": message_data,
-        "View": view_data,
-        "Num_transaction": num_transaction_data,
-        "Result": result_data,
-        })
-
-    data = frontend_log_data.values.tolist()
-
-    data_lst = []
-    for d in data:
-        data_lst.append({
-            "Type": d[0],
-            "Sender": d[1],
-            "Recipient": d[2],
-            "Primary": d[3],
-            "Transaction": d[3],
-            "Message": d[4],
-            "View": d[5],
-            "Num_transaction": d[6],
-            "Result": d[7],
-        })
-
     bank_lst = []
     consensus_bank = list(db_states["Replica_0"])
     prev_t = transaction_data[0]
+    visible_num_transactions = []
     idx = 0
     if len(consensus_bank) > 0:
         curr_bank_state = consensus_bank[idx]
@@ -121,7 +94,39 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
                 break
             curr_bank_state = consensus_bank[idx]
             bank_lst.append(curr_bank_state)
+            visible_num_transactions.append(idx + 1)
             count += 1
+
+    frontend_log_data = pd.DataFrame({
+        "Type": type_data,
+        "Sender": sender_data,
+        "Recipient": recipient_data,
+        "Primary": primary_data,
+        "Transaction": transaction_data,
+        "Message": message_data,
+        "View": view_data,
+        "Num_transaction": num_transaction_data,
+        "Visible_num_transaction": visible_num_transactions,
+        "Result": result_data,
+        })
+
+    data = frontend_log_data.values.tolist()
+
+    data_lst = []
+    for d in data:
+        data_lst.append({
+            "Type": d[0],
+            "Sender": d[1],
+            "Recipient": d[2],
+            "Primary": d[3],
+            "Transaction": d[4],
+            "Message": d[5],
+            "View": d[6],
+            "Num_transaction": d[7],
+            "Visible_num_transaction": d[8],
+            "Result": d[9],
+        })
+
     return data_lst, bank_lst
 
 @app.route("/", methods = ["POST", "GET"])
@@ -141,4 +146,4 @@ def show_all():
     if byz_behave == "none": byz_behave = None
 
     data_lst, bank_lst = sim(num_replicas = num_replicas, num_byzantine = num_byzantine, num_transactions = num_transactions, byz_behave = byz_behave)
-    return render_template("index.html", log_data = data_lst, bank_data = bank_lst)
+    return render_template("index.html", num_replicas = num_replicas, num_byzantine = num_byzantine, num_transactions = num_transactions, byz_behave = byz_behave, log_data = data_lst, bank_data = bank_lst)

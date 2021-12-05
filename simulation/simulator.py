@@ -441,6 +441,6 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
         print(r_name, json.dumps(bank_copy, cls=JSONEncoderWithDictProxy))
 
     # terminate all subprocesses
-    client.join(timeout = 30)
+    client.join(timeout = 20)
     for r in replicas:
-        r.join(timeout = 30)
+        r.join(timeout = 20)

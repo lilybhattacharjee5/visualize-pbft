@@ -96,7 +96,7 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
         db_states[r_name] = manager.list()
     p = mp.Process(target = run_simulation, args = (num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states, byz_replica_names, transactions))
     p.start()
-    p.join(timeout = 30)
+    p.join(timeout = 20)
     
     byz_replica_names = list(byz_replica_names)
     frontend_log = list(frontend_log)

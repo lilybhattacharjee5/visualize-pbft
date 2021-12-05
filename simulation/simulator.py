@@ -430,12 +430,12 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
 
             print("Move to next transaction in loop")
 
+    for r_name in replica_names:
+        db_states[r_name] = list(local_db_states[r_name])
+
     # states of replica banks
     for r_name, bank_copy in replica_bank_copies.items():
         print(r_name, json.dumps(bank_copy, cls=JSONEncoderWithDictProxy))
-
-    for r_name in replica_names:
-        db_states[r_name] = list(local_db_states[r_name])
 
     # terminate all subprocesses
     client.join(timeout = 120)

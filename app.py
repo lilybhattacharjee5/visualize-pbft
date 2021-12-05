@@ -22,7 +22,7 @@ settings = config["DEFAULT"]
 app = Flask(__name__, template_folder = ".")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bank.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = settings['SECRET_KEY']
+app.secret_key = "secret_key" #settings['SECRET_KEY']
 app.config['SESSION_TYPE'] = 'filesystem'
 app.static_folder = 'static'
 db = SQLAlchemy(app)
@@ -121,11 +121,25 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
         else:
             prev_num_transaction = num_transaction_data[t]
 
+    num_transaction_data_inc = []
+    for i in num_transaction_data:
+        num_transaction_data_inc.append(i + 1)
+
     bank_lst = []
     consensus_bank = list(db_states["Replica_0"])
 
-    for num in num_transaction_data:
-        bank_lst.append(consensus_bank[num])
+    transaction_num = 0
+    prev_num = 0
+    inform_flag = False
+    for t in range(len(num_transaction_data)):
+        num = num_transaction_data[t]
+        if type_data[t] == "Inform" and not inform_flag:
+            transaction_num += 1
+            inform_flag = True
+        if inform_flag and num != prev_num:
+            inform_flag = False
+        bank_lst.append(consensus_bank[transaction_num])
+        prev_num = num
 
     frontend_log_data = pd.DataFrame({
         "Type": type_data,
@@ -135,7 +149,7 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
         "Transaction": transaction_data,
         "Message": message_data,
         "View": view_data,
-        "Visible_num_transaction": num_transaction_data,
+        "Visible_num_transaction": num_transaction_data_inc,
         "Result": result_data,
         })
 

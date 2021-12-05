@@ -134,14 +134,17 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
     prev_num = 0
     inform_flag = False
     for t in range(len(num_transaction_data)):
-        num = num_transaction_data[t]
-        if type_data[t] == "Inform" and not inform_flag:
-            transaction_num += 1
-            inform_flag = True
-        if inform_flag and num != prev_num:
-            inform_flag = False
-        bank_lst.append(consensus_bank[transaction_num])
-        prev_num = num
+        try:
+            num = num_transaction_data[t]
+            if type_data[t] == "Inform" and not inform_flag:
+                transaction_num += 1
+                inform_flag = True
+            if inform_flag and num != prev_num:
+                inform_flag = False
+            bank_lst.append(consensus_bank[transaction_num])
+            prev_num = num
+        except:
+            bank_lst.append(consensus_bank[transaction_num])
 
     frontend_log_data = pd.DataFrame({
         "Type": type_data,

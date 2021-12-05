@@ -1,5 +1,6 @@
 from simulation.message_generator import generate_transaction_msg
 from simulation.utils import verify_mac
+import json
 
 ## CLIENT FUNCTIONS
 def send_transaction(queues, client_name, primary_name, curr_transaction, curr_view, p, client_primary_session_key, replica_names):
@@ -29,13 +30,14 @@ def recv_inform(to_client, f, visible_log, client_session_keys):
             if len(queue_elem) == 1 and type(queue_elem[0]) == dict and queue_elem[0]["Type"] == "Inform":
                 received = True 
                 curr_sender = queue_elem[0]["Sender"]
-                curr_result = str(queue_elem[0]["Result"])
 
                 # verify that the inform message is signed by the sender
-                curr_prepare_communication = queue_elem[0]["Communication"]
-                curr_msg = curr_prepare_communication["Message"]
+                curr_inform_communication = queue_elem[0]["Communication"]
+                curr_msg = curr_inform_communication["Message"]
                 shared_key = client_session_keys[curr_sender]
-                provided_digest = curr_prepare_communication["Digest"]
+                provided_digest = curr_inform_communication["Digest"]
+                curr_inform_data = json.loads(curr_msg)
+                curr_result = str(curr_inform_data["Result"])
                 if not verify_mac(curr_msg, shared_key, provided_digest):
                     continue
                 

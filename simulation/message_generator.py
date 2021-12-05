@@ -31,7 +31,6 @@ def generate_transaction_msg(sender, recipient, curr_transaction, curr_view, p, 
         "Sender": sender,
         "Recipient": recipient,
         "Communication": sent_message, # <o, t, c>_client signature
-        # "Transaction": client_signing_key.sign(str.encode(str(curr_transaction))),
         "View": curr_view,
         "Num_transaction": p,
     }
@@ -66,7 +65,6 @@ def generate_preprepare_msg(sender, recipient, curr_transaction, m_auth, curr_vi
         "Recipient": recipient,
         "Primary": primary,
         "Communication": sent_message, # <v, n, d>_primary signature, m
-        # "Transaction": curr_transaction, # already signed by client
         "View": curr_view,
         "Num_transaction": p,
     }
@@ -137,7 +135,9 @@ def generate_commit_msg(sender, recipient, m, primary, r_idx, replica_names, rep
 def generate_inform_msg(sender, recipient, curr_transaction, p, r, primary, replica_client_key, r_idx, curr_view):
     communication = {
         "View": curr_view,
-        "Replica": r_idx
+        "Replica": r_idx,
+        "Timestamp": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+        "Result": r
     }
     communication_bytes = json.dumps(communication).encode("utf-8")
     digest_input = communication_bytes + replica_client_key
@@ -154,25 +154,39 @@ def generate_inform_msg(sender, recipient, curr_transaction, p, r, primary, repl
         "Sender": sender,
         "Recipient": recipient,
         "Primary": primary,
-        # "Transaction": curr_transaction,
         "Num_transaction": p,
         "Communication": sent_message,
-        "Result": r,
     }
 
-def generate_view_change_msg(sender, recipient, primary):
+def generate_view_change_msg(sender, recipient, primary, replica_signing_key, r_idx, curr_view):
+    communication = {
+        "View": curr_view + 1,
+        "Replica": r_idx,
+    }
+    communication_bytes = json.dumps(communication).encode("utf-8")
+    signed_communication = replica_signing_key.sign(communication_bytes)
+
     return {
         "Type": "View change",
         "Sender": sender,
         "Recipient": recipient,
         "Primary": primary,
+        "Communication": signed_communication,
     }
 
-def generate_new_view_msg(sender, recipient, new_view, primary):
+def generate_new_view_msg(sender, recipient, new_view, primary, replica_signing_key, r_idx):
+    communication = {
+        "View": new_view,
+        "Replica": r_idx
+    }
+    communication_bytes = json.dumps(communication).encode("utf-8")
+    signed_communication = replica_signing_key.sign(communication_bytes)
+
     return {
         "Type": "New view",
         "Sender": sender,
         "Recipient": recipient,
         "Primary": primary,
         "View": new_view,
+        "Communication": signed_communication,
     }

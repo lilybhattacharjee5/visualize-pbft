@@ -48,9 +48,10 @@
         let bankData = {{ bank_data | tojson }};
         let numReplicas = parseInt({{ num_replicas }});
         let numByzantine = parseInt({{ num_byzantine }});
+        let byzReplicaNames = {{ byz_replica_names | tojson }};
         let numTransactions = parseInt({{ num_transactions }});
         let byzBehave = "{{ byz_behave | safe }}";
 
-        onload(numReplicas, numByzantine, numTransactions, byzBehave, logData, bankData);
+        onload(numReplicas, numByzantine, byzReplicaNames, numTransactions, byzBehave, logData, bankData);
     </script>
 </html>

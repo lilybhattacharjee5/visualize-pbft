@@ -57,15 +57,18 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
 
     manager = mp.Manager()
     frontend_log = manager.list()
+    byz_replica_names = manager.list()
     db_states = manager.dict()
     for r in range(num_replicas):
         r_name = "Replica_{}".format(r)
         db_states[r_name] = manager.list()
-    p = mp.Process(target = run_simulation, args = (num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states))
+    p = mp.Process(target = run_simulation, args = (num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states, byz_replica_names))
     p.start()
-    p.join(timeout = 2) # 20
-
+    p.join(timeout = 20) # 20
+    
+    byz_replica_names = list(byz_replica_names)
     frontend_log = list(frontend_log)
+    
     type_data = list(map(lambda x: "" if "Type" not in x else x["Type"], frontend_log))
     sender_data = list(map(lambda x: "" if "Sender" not in x else x["Sender"], frontend_log))
     recipient_data = list(map(lambda x: "" if "Recipient" not in x else x["Recipient"], frontend_log))
@@ -118,7 +121,7 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
             "Result": d[8],
         })
 
-    return data_lst, bank_lst
+    return data_lst, bank_lst, byz_replica_names
 
 @app.route("/", methods = ["POST", "GET"])
 def show_all():
@@ -136,5 +139,5 @@ def show_all():
 
     if byz_behave == "none": byz_behave = None
 
-    data_lst, bank_lst = sim(num_replicas = num_replicas, num_byzantine = num_byzantine, num_transactions = num_transactions, byz_behave = byz_behave)
-    return render_template("index.html", num_replicas = num_replicas, num_byzantine = num_byzantine, num_transactions = num_transactions, byz_behave = byz_behave, log_data = data_lst, bank_data = bank_lst)
+    data_lst, bank_lst, byz_replica_names = sim(num_replicas = num_replicas, num_byzantine = num_byzantine, num_transactions = num_transactions, byz_behave = byz_behave)
+    return render_template("index.html", num_replicas = num_replicas, num_byzantine = num_byzantine, byz_replica_names = byz_replica_names, num_transactions = num_transactions, byz_behave = byz_behave, log_data = data_lst, bank_data = bank_lst)

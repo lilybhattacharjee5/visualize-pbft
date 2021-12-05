@@ -111,6 +111,7 @@ def replica_proc(r_name, r_idx, r_signing_key, verify_keys, client_name, queues,
     transaction_communication_msg = None
     
     status = True
+    curr_view = 0
     while status:
         primary_status = False
 
@@ -132,8 +133,6 @@ def replica_proc(r_name, r_idx, r_signing_key, verify_keys, client_name, queues,
 
                 if not verify_mac(encoded_transaction_communication_msg, replica_session_keys[client_name], transaction_communication_auth[r_idx]):
                     continue
-
-                print("VALIDATED!!!")
 
                 # probable_transaction = transaction_msg["Transaction"]
                 # if not verify_signature(probable_transaction, verify_keys[client_name]):
@@ -167,7 +166,7 @@ def replica_proc(r_name, r_idx, r_signing_key, verify_keys, client_name, queues,
             m = send_preprepare(to_curr_replica, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, byz_status, visible_log, frontend_log, primary_name, replica_session_keys, m_auth, replica_names)
         else:
             # replicas receive pre-prepare message
-            m = recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys, byz_status, primary_name, replica_session_keys, r_idx)
+            m = recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys, byz_status, primary_name, replica_session_keys, r_idx, r_signing_key, curr_view)
             if m == None:
                 print("{} exit prematurely, restart the transaction".format(r_name))
                 continue
@@ -181,8 +180,8 @@ def replica_proc(r_name, r_idx, r_signing_key, verify_keys, client_name, queues,
         if m == None:
             print("{} exit prematurely, restart the transaction".format(r_name))
             # induce client to resend transaction
-            new_view_msg = generate_new_view_msg(r_name, client_name, curr_view + 1, primary_name)
-            frontend_log.append(new_view_msg)
+            new_view_msg = generate_new_view_msg(r_name, client_name, curr_view + 1, primary_name, r_signing_key, r_idx)
+            # frontend_log.append(new_view_msg)
             to_client.put([new_view_msg])
             continue
 
@@ -203,7 +202,7 @@ def replica_proc(r_name, r_idx, r_signing_key, verify_keys, client_name, queues,
         print(r_name, "sending inform", curr_transaction)
         send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, result, visible_log, frontend_log, primary_name, r_idx, curr_view, replica_session_keys[client_name]) # all replicas send an inform message to the client  
 
-def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states):
+def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states, byz_replica_names_lst):
     manager = mp.Manager()
     visible_log = manager.list()
 
@@ -233,8 +232,7 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
     ]
     transactions = possible_transactions[:num_transactions]
 
-    # select the random byzantine replicas
-    print("num byzantine", num_byzantine)
+    # select the byzantine replicas
     all_byz = [
         [[], [1], [0, 1]], # 2
         [[], [1], [0, 1], [0, 1, 2]], # 3
@@ -243,11 +241,10 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
         [[], [4], [0, 3], [1, 3, 5], [1, 2, 3, 5], [0, 1, 3, 5], [0, 1, 2, 3, 4, 5]], # 6
         [[], [6], [2, 4], [1, 3, 5], [1, 2, 3, 5], [0, 1, 3, 5], [0, 1, 2, 3, 4, 5], [0, 1, 2, 3, 4, 5, 6]], # 7
         [[], [5], [1, 3], [0, 2, 3], [0, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6, 7]], # 8
-        [[], [4], [2, 6], [0, 2, 3], [0, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6, 7], [0, 1, 2, 3, 4, 5, 6, 7, 8]], # 9
-        [[], [7], [7, 9], [1, 7, 9], [0, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6, 7], [0, 1, 2, 3, 4, 5, 6, 7, 8], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]], # 10
+        # [[], [4], [2, 6], [0, 2, 3], [0, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6, 7], [0, 1, 2, 3, 4, 5, 6, 7, 8]], # 9
+        # [[], [7], [7, 9], [1, 7, 9], [0, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6, 7], [0, 1, 2, 3, 4, 5, 6, 7, 8], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]], # 10
     ]
     byz_idxes = all_byz[num_replicas - 2][num_byzantine]
-    print("Byzantine replicas", byz_idxes)
 
     # calculations based on inputs
     num_transactions = len(transactions)
@@ -256,6 +253,9 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
     replica_names = ["Replica_{}".format(r) for r in range(num_replicas)]
     byz_replica_names = ["Replica_{}".format(r) for r in byz_idxes]
     good_replicas = ["Replica_{}".format(r) for r in list(set(range(num_replicas)) - set(byz_idxes))]
+
+    for b in byz_replica_names:
+        byz_replica_names_lst.append(b)
 
     local_db_states = manager.dict()
     for r_name in replica_names:

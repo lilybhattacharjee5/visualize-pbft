@@ -1,14 +1,14 @@
-function onload(numReplicas, numByzantine, numTransactions, byzBehave, logData, bankData) {
-    displaySettings(numReplicas, numByzantine, numTransactions, byzBehave);
+function onload(numReplicas, numByzantine, byzReplicaNames, numTransactions, byzBehave, logData, bankData) {
+    displaySettings(numReplicas, numByzantine, byzReplicaNames, numTransactions, byzBehave);
     displayCurrentTransaction(1);
     displayLog(logData);
     displayBank(bankData[0]);
     generateForceGraph(logData);
 }
 
-function displaySettings(numReplicas, numByzantine, numTransactions, byzBehave, currT) {
+function displaySettings(numReplicas, numByzantine, byzReplicaNames, numTransactions, byzBehave) {
     let currentSettings = document.getElementById("currentSettings");
-    currentSettings.innerHTML = `Number of replicas: <b>${numReplicas}</b> | Number of Byzantine replicas: <b>${numByzantine}</b> | Number of transactions: <b>${numTransactions}</b> | Behavior: <b>${byzBehave}</b>`;
+    currentSettings.innerHTML = `Number of replicas: <b>${numReplicas}</b> | Number of Byzantine replicas: <b>${numByzantine}</b> | Byzantine replicas: ${byzReplicaNames}<b></b> | Number of transactions: <b>${numTransactions}</b> | Behavior: <b>${byzBehave}</b>`;
 }
 
 function displayCurrentTransaction(currT) {
@@ -245,6 +245,9 @@ function generateForceGraph(data) {
         .attr("r", 10)
         .attr("stroke", "black")
         .attr("fill", function (d) {
+            if (d.name === currPrimary) {
+                return colorNodes("Primary")
+            }
             return colorNodes(d.name);
         });
 
@@ -263,7 +266,6 @@ function generateForceGraph(data) {
     let log = document.getElementById("logTable");
     let logRows = log.querySelectorAll("tr");
 
-    let currRow = logRows[idx + 1];
     for (let i = 1; i < visibleLinks.length + 1; i++) {
         let loopRow = logRows[idx + i];
         loopRow.style["font-weight"] = "bold";
@@ -292,7 +294,6 @@ function generateForceGraph(data) {
         }
 
         visibleLinks = findCurrLinks(sequentialLinks, idx);
-        console.log(visibleLinks);
         let probablePrimary = visibleLinks[0].primary;
         if (probablePrimary !== "") {
             currPrimary = probablePrimary;

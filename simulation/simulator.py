@@ -438,11 +438,6 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
         db_states[r_name] = list(local_db_states[r_name])
 
     # terminate all subprocesses
-    print("client is alive?", client.is_alive())
-    # client.terminate()
-    client.join(timeout = 1)
+    client.join(timeout = 120)
     for r in replicas:
-        # r.terminate()
-        r.join(timeout = 1)
-
-    print("client is alive?", client.is_alive())
+        r.join(timeout = 120)

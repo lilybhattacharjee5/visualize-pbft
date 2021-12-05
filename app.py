@@ -144,7 +144,7 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
             bank_lst.append(consensus_bank[transaction_num])
             prev_num = num
         except:
-            bank_lst.append(consensus_bank[transaction_num])
+            bank_lst.append(consensus_bank[-1])
 
     frontend_log_data = pd.DataFrame({
         "Type": type_data,

@@ -128,6 +128,7 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
 
     bank_lst = []
     consensus_bank = list(db_states["Replica_0"])
+    print(consensus_bank)
 
     transaction_num = 0
     prev_num = 0

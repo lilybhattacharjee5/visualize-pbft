@@ -1,4 +1,4 @@
-import multiprocessing as mp
+import multiprocessing.dummy as mp
 import time
 import numpy as np
 import pandas as pd
@@ -14,8 +14,6 @@ from simulation.primary import send_preprepare
 from simulation.message_generator import generate_new_view_msg
 from simulation.utils import verify_signature, verify_mac
 from nacl.signing import SigningKey, VerifyKey
-
-# mp = multiprocessing.get_context('spawn')
 
 # Possible Byzantine behavior to support
 # - insert forged client transactions into the system
@@ -327,7 +325,6 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
         r_name = replica_names[r_idx]
         curr_replica = mp.Process(name = r_name, target = replica_proc, args = (r_name, r_idx, signing_keys[r_name], verify_keys, client_name, machine_queues, byz_behave if r_name in byz_replica_names else None, t_queue, m_queue, visible_log, frontend_log, replica_logs, replica_bank_copies, f, g, good_replicas, local_db_states[r_name], session_keys[r_name], replica_names ))
         replicas.append(curr_replica)
-    print("byz", [byz_behave if r_name in byz_replica_names else None for r_name in replica_names])
 
     client.start()
     for r in replicas:
@@ -433,14 +430,19 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
 
             print("Move to next transaction in loop")
 
-    # terminate all subprocesses
-    client.terminate()
-    for r in replicas:
-        r.terminate()
-
     # states of replica banks
     for r_name, bank_copy in replica_bank_copies.items():
         print(r_name, json.dumps(bank_copy, cls=JSONEncoderWithDictProxy))
 
     for r_name in replica_names:
         db_states[r_name] = list(local_db_states[r_name])
+
+    # terminate all subprocesses
+    print("client is alive?", client.is_alive())
+    # client.terminate()
+    client.join(timeout = 1)
+    for r in replicas:
+        # r.terminate()
+        r.join(timeout = 1)
+
+    print("client is alive?", client.is_alive())

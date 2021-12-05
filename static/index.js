@@ -1,4 +1,8 @@
+var globalLogData;
+
 function onload(numReplicas, numByzantine, byzReplicaNames, numTransactions, byzBehave, logData, bankData) {
+    globalLogData = logData;
+
     displaySettings(numReplicas, numByzantine, byzReplicaNames, numTransactions, byzBehave);
     displayCurrentTransaction(1);
     displayLog(logData);
@@ -133,6 +137,21 @@ function generateGraphData(data) {
     return graphData;
 }
 
+function toggleDetailsVisibility(clickedElem) {
+    visibleText = clickedElem.innerHTML;
+    if (visibleText === "Expand") {
+        clickedElem.innerHTML = `<pre>${getLogMessage(clickedElem.id)}</pre>`;
+    } else {
+        clickedElem.innerHTML = "Expand";
+    }
+}
+
+function getLogMessage(i) {
+    let logEntry = globalLogData[parseInt(i)];
+    let msg = JSON.stringify(logEntry["Message"], null, 4);
+    return msg;
+}
+
 function displayLog(data) {
     let log = document.getElementById("log");
     let displayHTML = `<h5>Log</h5>
@@ -141,11 +160,13 @@ function displayLog(data) {
             <th>Sender</th>
             <th>Recipient</th>
             <th>Phase</th>
-            <th>Communication</th>
+            <th width='450px'>Communication</th>
         </tr>`;
+    let i = 0;
     for (const logEntry of data) {
-        let currDisplay = "<tr><td>" + logEntry["Sender"] + "</td><td>" + logEntry["Recipient"] + "</td><td>" + logEntry["Type"] + "</td><td>" + logEntry["Message"] + "</td></tr>";
+        let currDisplay = "<tr><td>" + logEntry["Sender"] + "</td><td>" + logEntry["Recipient"] + "</td><td>" + logEntry["Type"] + `</td><td width='450px' style='word-wrap: break-word; color: blue;' id="${i}" onclick='toggleDetailsVisibility(this)'>Expand</td></tr>`;
         displayHTML += currDisplay;
+        i++;
     }
     displayHTML += "</table>";
     log.innerHTML = displayHTML;

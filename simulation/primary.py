@@ -1,6 +1,7 @@
 from simulation.message_generator import generate_preprepare_msg
 import copy
 import json
+import ast
 
 def byz_primary(byz_status, to_curr_replica, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, visible_log, frontend_log, primary_name, primary_session_keys, m_auth, replica_names):
     if byz_status == "no_response":
@@ -16,7 +17,6 @@ def byz_primary(byz_status, to_curr_replica, queues, client_name, r_name, m_queu
                 
                 prep_msg = generate_preprepare_msg(r_name, q_name, curr_transaction, m_auth, curr_view, p, primary_name, primary_session_keys, replica_names)
                 clean_prep_msg = copy.deepcopy(prep_msg)
-                # clean_prep_msg["Transaction"] = str(clean_prep_msg["Transaction"].message)
                 frontend_log.append(clean_prep_msg)
                 q["to_machine"].put([prep_msg])
     else:
@@ -33,7 +33,8 @@ def send_preprepare(to_curr_replica, queues, client_name, r_name, m_queue, curr_
             if q_name != client_name and q_name != r_name:
                 prep_msg = generate_preprepare_msg(r_name, q_name, curr_transaction, m_auth, curr_view, p, primary_name, primary_session_keys, replica_names)
                 clean_prep_msg = copy.deepcopy(prep_msg)
-                # clean_prep_msg["Transaction"] = str(clean_prep_msg["Transaction"].message.decode("utf-8"))
+                # comm = clean_prep_msg["Communication"]
+                # comm["Authenticator"] = ["" if a == None else str(a) for a in comm["Authenticator"]]
                 frontend_log.append(clean_prep_msg)
                 q["to_machine"].put([prep_msg])
         m_queue.put(r_name + " pre-prepare phase done")

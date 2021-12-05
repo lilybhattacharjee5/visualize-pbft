@@ -48,6 +48,12 @@ def send_view_change(queues, r_name, client_name, frontend_log, primary_name, re
         if q_name != client_name and q_name != r_name:
             view_change_msg = generate_view_change_msg(r_name, q_name, primary_name, replica_signing_key, r_idx, curr_view)
             q["to_machine"].put([view_change_msg])
+
+            clean_view_change_msg = copy.deepcopy(view_change_msg)
+            clean_view_change_msg["Communication"] = {
+                "Message": clean_view_change_msg["Communication"].message, 
+                "Signature": clean_view_change_msg["Communication"].signature
+            }
             frontend_log.append(view_change_msg)
 
 def send_new_view(queues, r_name, client_name, to_curr_replica, curr_view, g, frontend_log, primary_name, replica_signing_key, r_idx):
@@ -72,7 +78,13 @@ def send_new_view(queues, r_name, client_name, to_curr_replica, curr_view, g, fr
         if q_name != client_name and q_name != r_name:
             new_view_msg = generate_new_view_msg(r_name, q_name, curr_view + 1, primary_name, replica_signing_key, r_idx)
             q["to_machine"].put([new_view_msg])
-            frontend_log.append(new_view_msg)
+
+            clean_new_view_msg = copy.deepcopy(new_view_msg)
+            clean_new_view_msg["Communication"] = {
+                "Message": clean_new_view_msg["Communication"].message, 
+                "Signature": clean_new_view_msg["Communication"].signature
+            }
+            frontend_log.append(clean_new_view_msg)
 
 def recv_new_view(r_name, to_curr_replica):
     received = False

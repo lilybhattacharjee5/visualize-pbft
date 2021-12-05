@@ -16,3 +16,9 @@ def verify_mac(msg, shared_key, provided_digest):
     if digest == provided_digest:
         return True
     return False
+
+def map_nested_dicts(ob, func):
+    if isinstance(ob, collections.Mapping):
+        return {k: map_nested_dicts(v, func) for k, v in ob.iteritems()}
+    else:
+        return func(ob)

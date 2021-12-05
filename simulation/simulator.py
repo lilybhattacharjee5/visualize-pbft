@@ -181,7 +181,6 @@ def replica_proc(r_name, r_idx, r_signing_key, verify_keys, client_name, queues,
             print("{} exit prematurely, restart the transaction".format(r_name))
             # induce client to resend transaction
             new_view_msg = generate_new_view_msg(r_name, client_name, curr_view + 1, primary_name, r_signing_key, r_idx)
-            # frontend_log.append(new_view_msg)
             to_client.put([new_view_msg])
             continue
 

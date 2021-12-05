@@ -8,6 +8,7 @@ from contextlib import contextmanager
 import multiprocessing as mp
 import time
 import json
+import ast
 
 default_num_replicas = 4
 default_num_byzantine = 0
@@ -46,6 +47,36 @@ def setup_bank():
     except:
         db.session.rollback()
 
+def clean_log_entry(log_entry):
+    try:
+        if type(log_entry) == dict:
+            for k, v in log_entry.items():
+                try:
+                    v = ast.literal_eval(v)
+                except:
+                    pass
+
+                temp_v = str(v)
+                if type(v) == bytes:
+                    try:
+                        temp_v = ast.literal_eval(v.decode())
+                    except:
+                        pass
+                elif type(v) == list:
+                    try:
+                        temp_v = [str(i) for i in v]
+                    except:
+                        pass
+                elif type(v) == dict:
+                    try:
+                        temp_v = clean_log_entry(v)
+                    except:
+                        pass
+                log_entry[k] = temp_v
+    except:
+        pass 
+    return log_entry
+
 def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzantine, num_transactions = default_num_transactions, byz_behave = default_byz_behave):
     setup_bank()
 
@@ -64,7 +95,7 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
         db_states[r_name] = manager.list()
     p = mp.Process(target = run_simulation, args = (num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states, byz_replica_names))
     p.start()
-    p.join(timeout = 20) # 20
+    p.join(timeout = 5) # 20
     
     byz_replica_names = list(byz_replica_names)
     frontend_log = list(frontend_log)
@@ -74,10 +105,13 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
     recipient_data = list(map(lambda x: "" if "Recipient" not in x else x["Recipient"], frontend_log))
     primary_data = list(map(lambda x: "" if "Primary" not in x else x["Primary"], frontend_log))
     transaction_data = list(map(lambda x: "" if "Transaction" not in x else x["Transaction"], frontend_log))
-    message_data = list(map(lambda x: "" if "Communication" not in x else str(x["Communication"]), frontend_log))
+    message_data = list(map(lambda x: "" if "Communication" not in x else x["Communication"], frontend_log))
     view_data = list(map(lambda x: "" if "View" not in x else x["View"], frontend_log))
     num_transaction_data = list(map(lambda x: "" if "Num_transaction" not in x else x["Num_transaction"], frontend_log))
     result_data = list(map(lambda x: "" if "Result" not in x else x["Result"], frontend_log))
+
+    for m in range(len(message_data)):
+        message_data[m] = clean_log_entry(message_data[m])
 
     # interpolate num transactions data
     prev_num_transaction = num_transaction_data[0]

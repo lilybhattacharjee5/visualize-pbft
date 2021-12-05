@@ -5,18 +5,6 @@ import copy
 import hashlib
 import json
 
-def byz_replica_send_prepare(byz_status):
-    if byz_status == "no_response":
-        return 
-    else:
-        return # none of the other byzantine behaviors are related to the replica's prepare phase
-
-def byz_replica_send_commit(byz_status):
-    if byz_status == "no_response":
-        return 
-    else:
-        return # none of the other byzantine behaviors are related to the replica's commit phase
-
 def byz_replica_send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, r, visible_log, frontend_log, primary_name, replica_client_key, r_idx, curr_view):
     if byz_status == "no_response":
         return 
@@ -34,12 +22,6 @@ def byz_replica_send_inform(to_client, client_name, r_name, byz_status, curr_tra
     else:
         return # none of the other byzantine behaviors are related to the replica's inform phase
 
-def byz_replica_recv_prepare(byz_status):
-    return
-
-def byz_replica_recv_commit(byz_status):
-    return
-
 ## REPLICA FUNCTIONS
 def send_view_change(queues, r_name, client_name, frontend_log, primary_name, replica_signing_key, r_idx, curr_view):
     # stop the byzantine commit algorithm for view v 
@@ -54,7 +36,7 @@ def send_view_change(queues, r_name, client_name, frontend_log, primary_name, re
                 "Message": clean_view_change_msg["Communication"].message, 
                 "Signature": clean_view_change_msg["Communication"].signature
             }
-            frontend_log.append(view_change_msg)
+            frontend_log.append(clean_view_change_msg)
 
 def send_new_view(queues, r_name, client_name, to_curr_replica, curr_view, g, frontend_log, primary_name, replica_signing_key, r_idx):
     # used by replica p' = (v + 1) mod n to become the new primary
@@ -134,13 +116,6 @@ def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, vi
                     detected_failure = True
                     break
 
-                # probable_transaction = queue_elem[0]["Transaction"]
-                # if not verify_signature(probable_transaction, verify_keys[client_name]):
-                #     print("signature issue: {} has detected primary failure".format(r_name))
-                #     send_view_change(queues, r_name, client_name, frontend_log, primary_name)
-                #     detected_failure = True
-                #     break
-
                 received = True 
                 visible_log.append("{} {}".format(r_name, queue_elem))
                 visible_log.append("{} {}".format(r_name, "pre-prepare message received!"))
@@ -181,15 +156,14 @@ def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, vi
 
 def send_prepare(queues, client_name, r_name, byz_status, m, visible_log, frontend_log, primary_name, r_idx, replica_names, replica_session_keys, curr_view):
     # all replicas broadcast prepare message to all other replicas
-    if byz_status:
-        byz_replica_send_prepare(byz_status)
+    if byz_status == "no_response":
+        return
     else:
         for q_name, q in queues.items():
             if q_name != client_name and q_name != r_name:
                 prep_msg = generate_prepare_msg(r_name, q_name, m, primary_name, r_idx, replica_names, replica_session_keys, curr_view)
                 q["to_machine"].put([prep_msg])
                 clean_prep_msg = copy.deepcopy(prep_msg)
-                # clean_prep_msg["Message"]["Transaction"] = str(clean_prep_msg["Message"]["Transaction"].message.decode("utf-8"))
                 frontend_log.append(clean_prep_msg)
         visible_log.append("{} has sent prepare messages".format(r_name)) 
 
@@ -223,9 +197,7 @@ def recv_prepare(to_curr_replica, r_name, m_queue, byz_status, g, visible_log, r
 
         visible_log.append("{} {}".format(r_name, queue_elem))
 
-    if byz_status:
-        byz_replica_recv_prepare(byz_status)
-    else:
+    if not byz_status:
         visible_log.append("{} {}".format(r_name, "prepare messages received!"))
 
     m_queue.put(r_name + " prepare phase done")
@@ -234,8 +206,8 @@ def recv_prepare(to_curr_replica, r_name, m_queue, byz_status, g, visible_log, r
 
 def send_commit(queues, client_name, r_name, m_queue, byz_status, m, visible_log, frontend_log, primary_name, r_idx, replica_names, replica_session_keys, curr_view):
     # all replicas broadcast commit message to all other replicas
-    if byz_status:
-        byz_replica_send_commit(byz_status)
+    if byz_status == "no_response":
+        return
     else:
         for q_name, q in queues.items():
             if q_name != client_name and q_name != r_name:
@@ -271,21 +243,18 @@ def recv_commit(to_curr_replica, r_name, m_queue, byz_status, m, g, visible_log,
 
         visible_log.append("{} {}".format(r_name, queue_elem))
 
-    if byz_status:
-        byz_replica_recv_commit(byz_status)
-    else:
+    if not byz_status:
         visible_log.append("{} {}".format(r_name, "commit messages received!"))
 
     m_queue.put(r_name + " commit phase done")
     visible_log.append(to_curr_replica["from_main"].get())
 
 def send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, r, visible_log, frontend_log, primary_name, r_idx, curr_view, replica_client_key):
-    if byz_status:
+    if byz_status == "bad_transaction_results":
         byz_replica_send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, r, visible_log, frontend_log, primary_name, replica_client_key, r_idx, curr_view)
     else:
         inform_msg = generate_inform_msg(r_name, client_name, curr_transaction, p, r, primary_name, replica_client_key, r_idx, curr_view)
         to_client.put([inform_msg])
         clean_inform_msg = copy.deepcopy(inform_msg)
-        # clean_inform_msg["Transaction"] = str(clean_inform_msg["Transaction"].message.decode("utf-8"))
         frontend_log.append(clean_inform_msg)
         visible_log.append("{} has sent inform message to client".format(r_name))

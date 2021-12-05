@@ -38,6 +38,7 @@ function validate_inputs(num_replicas_val, num_byzantine_val, num_transactions_v
     let num_replicas = parseInt(num_replicas_val);
     let num_byzantine = parseInt(num_byzantine_val);
     let num_transactions = parseInt(num_transactions_val);
+    console.log(num_byzantine, num_replicas - 1);
 
     if (!(num_replicas > 1) || !(num_replicas <= 8)) {
         return false;
@@ -52,6 +53,10 @@ function validate_inputs(num_replicas_val, num_byzantine_val, num_transactions_v
     }
 
     if ((num_byzantine > 0) && (byz_behave === "none")) {
+        return false;
+    }
+
+    if (num_byzantine >= num_replicas - 1) {
         return false;
     }
 

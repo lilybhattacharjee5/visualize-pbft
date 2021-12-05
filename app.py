@@ -114,13 +114,14 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
         message_data[m] = clean_log_entry(message_data[m])
 
     # interpolate num transactions data
-    prev_num_transaction = num_transaction_data[0]
+    prev_num_transaction = num_transaction_data[0] if type(num_transaction_data[0]) == int else 0
     for t in range(len(num_transaction_data)):
         if num_transaction_data[t] == '':
             num_transaction_data[t] = prev_num_transaction
         else:
             prev_num_transaction = num_transaction_data[t]
 
+    print(num_transaction_data)
     num_transaction_data_inc = []
     for i in num_transaction_data:
         num_transaction_data_inc.append(i + 1)

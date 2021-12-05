@@ -110,6 +110,7 @@ def replica_proc(r_name, r_idx, r_signing_key, verify_keys, client_name, queues,
     
     status = True
     curr_view = 0
+    p = 0
     while status:
         primary_status = False
 
@@ -164,26 +165,26 @@ def replica_proc(r_name, r_idx, r_signing_key, verify_keys, client_name, queues,
             m = send_preprepare(to_curr_replica, queues, client_name, r_name, m_queue, curr_transaction, curr_view, p, byz_status, visible_log, frontend_log, primary_name, replica_session_keys, m_auth, replica_names)
         else:
             # replicas receive pre-prepare message
-            m = recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys, byz_status, primary_name, replica_session_keys, r_idx, r_signing_key, curr_view)
+            m = recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys, byz_status, primary_name, replica_session_keys, r_idx, r_signing_key, curr_view, p)
             if m == None:
                 print("{} exit prematurely, restart the transaction".format(r_name))
                 continue
-            curr_transaction, p = m["Transaction"], m["Num_transaction"]
+        curr_transaction, p = m["Transaction"], m["Num_transaction"]
 
         # prepare phase
         curr_view = m["View"]
-        send_prepare(queues, client_name, r_name, byz_status, m, visible_log, frontend_log, primary_name, r_idx, replica_names, replica_session_keys, curr_view)
+        send_prepare(queues, client_name, r_name, byz_status, m, visible_log, frontend_log, primary_name, r_idx, replica_names, replica_session_keys, curr_view, p)
 
         m = recv_prepare(to_curr_replica, r_name, m_queue, byz_status, g, visible_log, replica_session_keys, r_idx)
         if m == None:
             print("{} exit prematurely, restart the transaction".format(r_name))
             # induce client to resend transaction
-            new_view_msg = generate_new_view_msg(r_name, client_name, curr_view + 1, primary_name, r_signing_key, r_idx)
+            new_view_msg = generate_new_view_msg(r_name, client_name, curr_view + 1, primary_name, r_signing_key, r_idx, p)
             to_client.put([new_view_msg])
             continue
 
         # commit phase
-        send_commit(queues, client_name, r_name, m_queue, byz_status, m, visible_log, frontend_log, primary_name, r_idx, replica_names, replica_session_keys, curr_view)
+        send_commit(queues, client_name, r_name, m_queue, byz_status, m, visible_log, frontend_log, primary_name, r_idx, replica_names, replica_session_keys, curr_view, p)
 
         recv_commit(to_curr_replica, r_name, m_queue, byz_status, m, g, visible_log, frontend_log, replica_session_keys, r_idx)
 
@@ -199,7 +200,7 @@ def replica_proc(r_name, r_idx, r_signing_key, verify_keys, client_name, queues,
         print(r_name, "sending inform", curr_transaction)
         send_inform(to_client, client_name, r_name, byz_status, curr_transaction, p, result, visible_log, frontend_log, primary_name, r_idx, curr_view, replica_session_keys[client_name]) # all replicas send an inform message to the client  
 
-def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states, byz_replica_names_lst):
+def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states, byz_replica_names_lst, transactions_lst):
     manager = mp.Manager()
     visible_log = manager.list()
 
@@ -228,6 +229,8 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
         ["Ana", "Elisa", 30]
     ]
     transactions = possible_transactions[:num_transactions]
+    for t in transactions:
+        transactions_lst.append(t)
 
     # select the byzantine replicas
     all_byz = [
@@ -235,9 +238,9 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
         [[], [1], [0, 1], [0, 1, 2]], # 3
         [[], [2], [0, 2], [0, 2, 3], [0, 1, 2, 3]], # 4
         [[], [3], [0, 2], [0, 2, 3], [0, 2, 3, 4], [0, 1, 2, 3, 4]], # 5
-        [[], [4], [0, 3], [1, 3, 5], [1, 2, 3, 5], [0, 1, 3, 5], [0, 1, 2, 3, 4, 5]], # 6
-        [[], [6], [2, 4], [1, 3, 5], [1, 2, 3, 5], [0, 1, 3, 5], [0, 1, 2, 3, 4, 5], [0, 1, 2, 3, 4, 5, 6]], # 7
-        [[], [5], [1, 3], [0, 2, 3], [0, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6, 7]], # 8
+        [[], [4], [0, 3], [2, 4, 5], [1, 2, 3, 5], [0, 1, 3, 5], [0, 1, 2, 3, 4, 5]], # 6
+        [[], [6], [2, 4], [4, 5, 6], [1, 2, 3, 5], [0, 1, 3, 5], [0, 1, 2, 3, 4, 5], [0, 1, 2, 3, 4, 5, 6]], # 7
+        [[], [5], [3, 5], [0, 5, 8], [0, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6, 7]], # 8
         # [[], [4], [2, 6], [0, 2, 3], [0, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6, 7], [0, 1, 2, 3, 4, 5, 6, 7, 8]], # 9
         # [[], [7], [7, 9], [1, 7, 9], [0, 2, 3, 4], [0, 1, 2, 3, 4], [0, 1, 2, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4, 5, 6, 7], [0, 1, 2, 3, 4, 5, 6, 7, 8], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]], # 10
     ]
@@ -438,6 +441,6 @@ def run_simulation(num_replicas, num_byzantine, num_transactions, byz_behave, fr
         print(r_name, json.dumps(bank_copy, cls=JSONEncoderWithDictProxy))
 
     # terminate all subprocesses
-    client.join(timeout = 120)
+    client.join(timeout = 30)
     for r in replicas:
-        r.join(timeout = 120)
+        r.join(timeout = 30)

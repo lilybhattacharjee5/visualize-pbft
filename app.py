@@ -90,25 +90,28 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
     frontend_log = manager.list()
     byz_replica_names = manager.list()
     db_states = manager.dict()
+    transactions = manager.list()
     for r in range(num_replicas):
         r_name = "Replica_{}".format(r)
         db_states[r_name] = manager.list()
-    p = mp.Process(target = run_simulation, args = (num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states, byz_replica_names))
+    p = mp.Process(target = run_simulation, args = (num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states, byz_replica_names, transactions))
     p.start()
-    p.join(timeout = 20)
+    p.join(timeout = 30)
     
     byz_replica_names = list(byz_replica_names)
     frontend_log = list(frontend_log)
+    transactions = list(transactions)
     
     type_data = list(map(lambda x: "" if "Type" not in x else x["Type"], frontend_log))
     sender_data = list(map(lambda x: "" if "Sender" not in x else x["Sender"], frontend_log))
     recipient_data = list(map(lambda x: "" if "Recipient" not in x else x["Recipient"], frontend_log))
     primary_data = list(map(lambda x: "" if "Primary" not in x else x["Primary"], frontend_log))
-    transaction_data = list(map(lambda x: "" if "Transaction" not in x else x["Transaction"], frontend_log))
     message_data = list(map(lambda x: "" if "Communication" not in x else x["Communication"], frontend_log))
     view_data = list(map(lambda x: "" if "View" not in x else x["View"], frontend_log))
     num_transaction_data = list(map(lambda x: "" if "Num_transaction" not in x else x["Num_transaction"], frontend_log))
     result_data = list(map(lambda x: "" if "Result" not in x else x["Result"], frontend_log))
+
+    transaction_data = []
 
     for m in range(len(message_data)):
         message_data[m] = clean_log_entry(message_data[m])
@@ -121,25 +124,24 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
         else:
             prev_num_transaction = num_transaction_data[t]
 
-    print(num_transaction_data)
     num_transaction_data_inc = []
     for i in num_transaction_data:
         num_transaction_data_inc.append(i + 1)
 
     bank_lst = []
     consensus_bank = list(db_states["Replica_0"])
-    print(consensus_bank)
 
     transaction_num = 0
     prev_num = 0
     inform_flag = False
     for t in range(len(num_transaction_data)):
+        transaction_data.append(transactions[num_transaction_data[t]])
         try:
             num = num_transaction_data[t]
             if type_data[t] == "Inform" and not inform_flag:
                 transaction_num += 1
                 inform_flag = True
-            if inform_flag and num != prev_num:
+            if inform_flag and num > prev_num:
                 inform_flag = False
             bank_lst.append(consensus_bank[transaction_num])
             prev_num = num

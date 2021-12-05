@@ -4,7 +4,7 @@ function onload(numReplicas, numByzantine, byzReplicaNames, numTransactions, byz
     globalLogData = logData;
 
     displaySettings(numReplicas, numByzantine, byzReplicaNames, numTransactions, byzBehave);
-    displayCurrentTransaction(1);
+    displayCurrentTransaction(1, logData[0]);
     displayLog(logData);
     displayBank(bankData[0]);
     generateForceGraph(logData);
@@ -15,9 +15,13 @@ function displaySettings(numReplicas, numByzantine, byzReplicaNames, numTransact
     currentSettings.innerHTML = `Number of replicas: <b>${numReplicas}</b> | Number of Byzantine replicas: <b>${numByzantine}</b> | Byzantine replicas: ${byzReplicaNames}<b></b> | Number of transactions: <b>${numTransactions}</b> | Behavior: <b>${byzBehave}</b>`;
 }
 
-function displayCurrentTransaction(currT) {
+function displayCurrentTransaction(currT, logEntry) {
     let currentTransaction = document.getElementById("currentTransaction");
-    currentTransaction.innerHTML = `Transaction <b>${currT}</b>`;
+    let operation = logEntry["Transaction"];
+    let sender = operation[0];
+    let recipient = operation[1];
+    let amt = operation[2];
+    currentTransaction.innerHTML = `Transaction <b>${currT}</b> | <b>${sender} to ${recipient} (&dollar;${amt})</b>`;
 }
 
 function colorNodes(nodeName) {
@@ -38,7 +42,6 @@ function validate_inputs(num_replicas_val, num_byzantine_val, num_transactions_v
     let num_replicas = parseInt(num_replicas_val);
     let num_byzantine = parseInt(num_byzantine_val);
     let num_transactions = parseInt(num_transactions_val);
-    console.log(num_byzantine, num_replicas - 1);
 
     if (!(num_replicas > 1) || !(num_replicas <= 8)) {
         return false;
@@ -358,7 +361,7 @@ function generateForceGraph(data) {
 
         prevIdx = idx + 1;
 
-        displayCurrentTransaction(currT);
+        displayCurrentTransaction(currT, data[idx + 1]);
 
         displayBank(bankData[idx]);
     }

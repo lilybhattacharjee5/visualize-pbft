@@ -70,7 +70,7 @@ def generate_preprepare_msg(sender, recipient, curr_transaction, m_auth, curr_vi
     }
     return msg
 
-def generate_prepare_msg(sender, recipient, m, primary, r_idx, replica_names, replica_session_keys, curr_view):
+def generate_prepare_msg(sender, recipient, m, primary, r_idx, replica_names, replica_session_keys, curr_view, p):
     communication = {
         "View": curr_view,
         "Replica": r_idx
@@ -99,9 +99,10 @@ def generate_prepare_msg(sender, recipient, m, primary, r_idx, replica_names, re
         "Recipient": recipient,
         "Primary": primary,
         "Communication": sent_message,
+        "Num_transaction": p,
     }
 
-def generate_commit_msg(sender, recipient, m, primary, r_idx, replica_names, replica_session_keys, curr_view):
+def generate_commit_msg(sender, recipient, m, primary, r_idx, replica_names, replica_session_keys, curr_view, p):
     communication = {
         "View": curr_view,
         "Replica": r_idx
@@ -130,6 +131,7 @@ def generate_commit_msg(sender, recipient, m, primary, r_idx, replica_names, rep
         "Recipient": recipient,
         "Primary": primary,
         "Communication": sent_message,
+        "Num_transaction": p,
     }
 
 def generate_inform_msg(sender, recipient, curr_transaction, p, r, primary, replica_client_key, r_idx, curr_view):
@@ -158,7 +160,7 @@ def generate_inform_msg(sender, recipient, curr_transaction, p, r, primary, repl
         "Communication": sent_message,
     }
 
-def generate_view_change_msg(sender, recipient, primary, replica_signing_key, r_idx, curr_view):
+def generate_view_change_msg(sender, recipient, primary, replica_signing_key, r_idx, curr_view, p):
     communication = {
         "View": curr_view + 1,
         "Replica": r_idx,
@@ -172,9 +174,10 @@ def generate_view_change_msg(sender, recipient, primary, replica_signing_key, r_
         "Recipient": recipient,
         "Primary": primary,
         "Communication": signed_communication,
+        "Num_transaction": p,
     }
 
-def generate_new_view_msg(sender, recipient, new_view, primary, replica_signing_key, r_idx):
+def generate_new_view_msg(sender, recipient, new_view, primary, replica_signing_key, r_idx, p):
     communication = {
         "View": new_view,
         "Replica": r_idx
@@ -189,4 +192,5 @@ def generate_new_view_msg(sender, recipient, new_view, primary, replica_signing_
         "Primary": primary,
         "View": new_view,
         "Communication": signed_communication,
+        "Num_transaction": p,
     }

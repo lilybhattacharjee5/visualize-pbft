@@ -23,12 +23,12 @@ def byz_replica_send_inform(to_client, client_name, r_name, byz_status, curr_tra
         return # none of the other byzantine behaviors are related to the replica's inform phase
 
 ## REPLICA FUNCTIONS
-def send_view_change(queues, r_name, client_name, frontend_log, primary_name, replica_signing_key, r_idx, curr_view):
+def send_view_change(queues, r_name, client_name, frontend_log, primary_name, replica_signing_key, r_idx, curr_view, p):
     # stop the byzantine commit algorithm for view v 
     # broadcast viewchange(E, v) to all replicas [E = set of all requests m prepared by R]
     for q_name, q in queues.items():
         if q_name != client_name and q_name != r_name:
-            view_change_msg = generate_view_change_msg(r_name, q_name, primary_name, replica_signing_key, r_idx, curr_view)
+            view_change_msg = generate_view_change_msg(r_name, q_name, primary_name, replica_signing_key, r_idx, curr_view, p)
             q["to_machine"].put([view_change_msg])
 
             clean_view_change_msg = copy.deepcopy(view_change_msg)
@@ -38,7 +38,7 @@ def send_view_change(queues, r_name, client_name, frontend_log, primary_name, re
             }
             frontend_log.append(clean_view_change_msg)
 
-def send_new_view(queues, r_name, client_name, to_curr_replica, curr_view, g, frontend_log, primary_name, replica_signing_key, r_idx):
+def send_new_view(queues, r_name, client_name, to_curr_replica, curr_view, g, frontend_log, primary_name, replica_signing_key, r_idx, p):
     # used by replica p' = (v + 1) mod n to become the new primary
     # p' receives at least g viewchange(E_i, v_i) messages
     sender_count = 0
@@ -58,7 +58,7 @@ def send_new_view(queues, r_name, client_name, to_curr_replica, curr_view, g, fr
     # broadcast newview(v + 1, V, N) to all replicas
     for q_name, q in queues.items():
         if q_name != client_name and q_name != r_name:
-            new_view_msg = generate_new_view_msg(r_name, q_name, curr_view + 1, primary_name, replica_signing_key, r_idx)
+            new_view_msg = generate_new_view_msg(r_name, q_name, curr_view + 1, primary_name, replica_signing_key, r_idx, p)
             q["to_machine"].put([new_view_msg])
 
             clean_new_view_msg = copy.deepcopy(new_view_msg)
@@ -77,7 +77,7 @@ def recv_new_view(r_name, to_curr_replica):
             received = True
             print("{} received new view".format(r_name))
 
-def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys, byz_status, primary_name, replica_session_keys, r_idx, replica_signing_key, curr_view):
+def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, visible_log, frontend_log, good_replicas, verify_keys, byz_status, primary_name, replica_session_keys, r_idx, replica_signing_key, curr_view, p):
     received = False
     counter = 0
     detected_failure = False
@@ -88,7 +88,7 @@ def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, vi
                 # if replica is byzantine, keep spamming view change requests (even if primary is good)
                 if byz_status == "bad_view_change_requests":
                     print("spammed request: {} has detected primary failure".format(r_name))
-                    send_view_change(queues, r_name, client_name, frontend_log, primary_name, replica_signing_key, curr_view, r_idx)
+                    send_view_change(queues, r_name, client_name, frontend_log, primary_name, replica_signing_key, curr_view, r_idx, p)
                     break
                 
                 # verify that transaction message is signed by client
@@ -101,7 +101,7 @@ def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, vi
 
                 if not verify_mac(transaction_msg, shared_key, transaction_digest):
                     print("signature issue: {} has detected primary failure".format(r_name))
-                    send_view_change(queues, r_name, client_name, frontend_log, primary_name, replica_signing_key, curr_view, r_idx)
+                    send_view_change(queues, r_name, client_name, frontend_log, primary_name, replica_signing_key, curr_view, r_idx, p)
                     detected_failure = True
                     break
                 print("VERIFIED PREPREPARE", r_name)
@@ -112,7 +112,7 @@ def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, vi
                 shared_key = replica_session_keys[primary_name]
                 if not verify_mac(primary_communication, shared_key, primary_digest):
                     print("signature issue: {} has detected primary failure".format(r_name))
-                    send_view_change(queues, r_name, client_name, frontend_log, primary_name, replica_signing_key, curr_view, r_idx)
+                    send_view_change(queues, r_name, client_name, frontend_log, primary_name, replica_signing_key, curr_view, r_idx, p)
                     detected_failure = True
                     break
 
@@ -125,7 +125,7 @@ def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, vi
             counter += 1
             if counter > 5:
                 print("{} has detected primary failure".format(r_name))
-                send_view_change(queues, r_name, client_name, frontend_log, primary_name, replica_signing_key, r_idx, curr_view)
+                send_view_change(queues, r_name, client_name, frontend_log, primary_name, replica_signing_key, r_idx, curr_view, p)
                 detected_failure = True
                 break
 
@@ -133,7 +133,7 @@ def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, vi
         print(good_replicas)
         if r_name == good_replicas[0]: # this needs to be changed! "Replica_1"
             # send new view message
-            send_new_view(queues, r_name, client_name, to_curr_replica, 0, g, frontend_log, primary_name, replica_signing_key, r_idx)
+            send_new_view(queues, r_name, client_name, to_curr_replica, 0, g, frontend_log, primary_name, replica_signing_key, r_idx, p)
         else:
             # receive new view message
             recv_new_view(r_name, to_curr_replica)
@@ -154,14 +154,14 @@ def recv_preprepare(to_curr_replica, client_name, queues, r_name, m_queue, g, vi
     }
     return m
 
-def send_prepare(queues, client_name, r_name, byz_status, m, visible_log, frontend_log, primary_name, r_idx, replica_names, replica_session_keys, curr_view):
+def send_prepare(queues, client_name, r_name, byz_status, m, visible_log, frontend_log, primary_name, r_idx, replica_names, replica_session_keys, curr_view, p):
     # all replicas broadcast prepare message to all other replicas
     if byz_status == "no_response":
         return
     else:
         for q_name, q in queues.items():
             if q_name != client_name and q_name != r_name:
-                prep_msg = generate_prepare_msg(r_name, q_name, m, primary_name, r_idx, replica_names, replica_session_keys, curr_view)
+                prep_msg = generate_prepare_msg(r_name, q_name, m, primary_name, r_idx, replica_names, replica_session_keys, curr_view, p)
                 q["to_machine"].put([prep_msg])
                 clean_prep_msg = copy.deepcopy(prep_msg)
                 frontend_log.append(clean_prep_msg)
@@ -204,14 +204,14 @@ def recv_prepare(to_curr_replica, r_name, m_queue, byz_status, g, visible_log, r
     visible_log.append(to_curr_replica["from_main"].get())
     return True
 
-def send_commit(queues, client_name, r_name, m_queue, byz_status, m, visible_log, frontend_log, primary_name, r_idx, replica_names, replica_session_keys, curr_view):
+def send_commit(queues, client_name, r_name, m_queue, byz_status, m, visible_log, frontend_log, primary_name, r_idx, replica_names, replica_session_keys, curr_view, p):
     # all replicas broadcast commit message to all other replicas
     if byz_status == "no_response":
         return
     else:
         for q_name, q in queues.items():
             if q_name != client_name and q_name != r_name:
-                commit_msg = generate_commit_msg(r_name, q_name, m, primary_name, r_idx, replica_names, replica_session_keys, curr_view)
+                commit_msg = generate_commit_msg(r_name, q_name, m, primary_name, r_idx, replica_names, replica_session_keys, curr_view, p)
                 q["to_machine"].put([commit_msg])
                 frontend_log.append(commit_msg)
         visible_log.append("{} has sent commit messages".format(r_name)) 

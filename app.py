@@ -22,7 +22,7 @@ settings = config["DEFAULT"]
 app = Flask(__name__, template_folder = ".")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bank.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = "secret_key" #settings['SECRET_KEY']
+app.secret_key = "secret_key" # placeholder value for demo purposes
 app.config['SESSION_TYPE'] = 'filesystem'
 app.static_folder = 'static'
 db = SQLAlchemy(app)
@@ -95,7 +95,7 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
         db_states[r_name] = manager.list()
     p = mp.Process(target = run_simulation, args = (num_replicas, num_byzantine, num_transactions, byz_behave, frontend_log, db_states, byz_replica_names))
     p.start()
-    p.join(timeout = 5) # 20
+    p.join(timeout = 20)
     
     byz_replica_names = list(byz_replica_names)
     frontend_log = list(frontend_log)

@@ -133,10 +133,6 @@ def replica_proc(r_name, r_idx, r_signing_key, verify_keys, client_name, queues,
                 if not verify_mac(encoded_transaction_communication_msg, replica_session_keys[client_name], transaction_communication_auth[r_idx]):
                     continue
 
-                # probable_transaction = transaction_msg["Transaction"]
-                # if not verify_signature(probable_transaction, verify_keys[client_name]):
-                #     continue
-
                 if transaction_msg == None or transaction_msg["Type"] == "Transaction":
                     received = True 
 
@@ -146,7 +142,6 @@ def replica_proc(r_name, r_idx, r_signing_key, verify_keys, client_name, queues,
         visible_log.append("{} {}".format(transaction, primary_name))
         if transaction:
             primary_status = True
-            # print("THIS IS IT", transaction_communication_msg["Operation"])
             curr_transaction, curr_view, p = transaction_communication, transaction["View"], transaction["Num_transaction"]
         else:
             # must be a regular replica

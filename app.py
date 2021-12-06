@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, request, render_template, redirect, url_for, session, jsonify
+from flask import Flask, request, render_template, redirect, url_for, session, jsonify, send_file
 import pandas as pd
 from simulation.simulator import run_simulation
 import configparser
@@ -179,7 +179,7 @@ def sim(num_replicas = default_num_replicas, num_byzantine = default_num_byzanti
     return data_lst, bank_lst, byz_replica_names
 
 @app.route("/", methods = ["POST", "GET"])
-def show_all():
+def show_index_page():
     if request.method == "POST":
         data = request.form
         num_replicas = int(data.get('num_replicas'))
@@ -196,3 +196,11 @@ def show_all():
 
     data_lst, bank_lst, byz_replica_names = sim(num_replicas = num_replicas, num_byzantine = num_byzantine, num_transactions = num_transactions, byz_behave = byz_behave)
     return render_template("index.html", num_replicas = num_replicas, num_byzantine = num_byzantine, byz_replica_names = byz_replica_names, num_transactions = num_transactions, byz_behave = byz_behave, log_data = data_lst, bank_data = bank_lst)
+
+@app.route("/about", methods = ["GET"])
+def show_about_page():
+    return render_template("about.html")
+
+@app.route("/report", methods = ["GET"])
+def show_report_pdf():
+    return send_file("ECS_235A_Final_Project_Report.pdf")

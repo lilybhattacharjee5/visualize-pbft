@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+    <head>
+        <title>About visualize-pbft</title>
+        <link rel = "stylesheet" type = "text/css" href = "{{ url_for('static', filename = 'sb-admin-2.min.css') }}" />
+        <link rel = "stylesheet" type = "text/css" href = "{{ url_for('static', filename = 'index.css') }}" />
+    </head>
+    </head>
+    <body>
+        <div id = "container">
+            <h1>About visualize-pbft</h1>
+            visualize-pbft is an ECS 235A final project that facilitates understanding the robustness of Practical Byzantine Fault Tolerance (pBFT), a distributed systems consensus protocol, by simulating node-to-node communication as queues shared by client and replica threads on backend, and returning message data and results to a web frontend for processing.
+            <br /><br />
+            The form on the dashboard page allows the user to enter 4 parameters to control the simulation run: number of replicas total, number of Byzantine replicas, number of transactions to execute, and Byzantine behavior (one behavior applies to all chosen Byzantine replicas). To pass form option validation, ensure that your inputs are reasonable, satisfying the following requirements:
+            <ul>
+                <li>all textbox inputs are valid integers.</li>
+                <li>the number of replicas is between 2 and 8 inclusive.</li>
+                <li>the number of Byzantine replicas is between 0 and 8 inclusive.</li>
+                <li>the number of transactions is between 1 and 10 inclusive.</li>
+                <li>if the number of Byzantine replicas is set to a nonzero number and "None" is specified for Byzantine behavior, the input is invalid.</li>
+                <li>the number of Byzantine replicas must be strictly less than the number of replicas total.</li>
+            </ul>
+            visualize-pbft is a small project with a lot of potential to grow. See the <a href = "https://github.com/lilybhattacharjee5/visualize-pbft#readme" target = "_blank">README</a> for a growing list of todos... and if you find a bug, please feel free to reach out!
+        </div>
+    </body>
+</html>
